@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>짱 라오쉬 수행 연습 (Ultimate TTS)</title>
+    <title>짱 라오쉬 수행 연습 (Ultimate)</title>
     <style>
         /* [디자인] 기본 설정 */
+        html { overflow-y: scroll; } /* 스크롤 밀림 방지 */
+        
         body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background-color: #f7f9fc; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; transition: 0.3s; }
-        .card { background: white; padding: 40px 30px; border-radius: 20px; box-shadow: 0 12px 24px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 550px; margin-bottom: 20px; position: relative; transition: 0.3s; }
+        .card { background: white; padding: 40px 30px; border-radius: 20px; box-shadow: 0 12px 24px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 550px; margin-bottom: 20px; position: relative; transition: 0.3s; z-index: 10; }
         h2 { color: #2c3e50; margin: 0 0 10px 0; letter-spacing: -1px; }
         .subtitle { color: #7f8c8d; font-size: 0.95em; margin-bottom: 10px; line-height: 1.6; padding-bottom: 15px; }
         
@@ -15,17 +17,16 @@
         .control-panel { border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px; }
         .mode-select-area { margin-bottom: 15px; }
         select { padding: 8px; font-size: 15px; border-radius: 8px; border: 2px solid #007bff; color: #333; font-weight: bold; cursor: pointer; outline: none; width: 100%; max-width: 300px; }
+        option.advanced-option { background-color: #e8f5e9; color: #2e7d32; font-weight: bold; }
 
         /* 배지 스타일 */
         .badge-container { display: flex; justify-content: center; gap: 10px; font-size: 0.9em; font-weight: bold; }
         .counter-badge { background-color: #e3f2fd; color: #1565c0; padding: 6px 15px; border-radius: 20px; border: 1px solid #bbdefb; min-width: 120px; }
         .wrong-badge { background-color: #ffebee; color: #c62828; padding: 6px 15px; border-radius: 20px; border: 1px solid #ffcdd2; }
 
-        /* 문제 영역 및 TTS 버튼 */
+        /* 문제 영역 및 TTS */
         #question-area { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 20px 0; min-height: 60px; }
         #question { font-size: 38px; font-weight: 800; color: #007bff; word-break: keep-all; }
-        
-        /* 스피커 버튼 스타일 */
         .tts-btn { background: none; border: none; cursor: pointer; font-size: 1.5em; padding: 5px; transition: transform 0.1s; display: inline-flex; align-items: center; justify-content: center; }
         .tts-btn:active { transform: scale(0.9); }
         .tts-btn-small { font-size: 1.2em; margin-left: 8px; color: #007bff; vertical-align: middle; }
@@ -39,32 +40,39 @@
         .check-btn { background-color: #28a745; color: white; flex: 2; }
         .skip-btn { background-color: #ecf0f1; color: #444; flex: 1; }
         
-        /* 오답 모드 버튼 */
         .retry-btn { background-color: #d32f2f; color: white; width: 100%; margin-top: 15px; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; display: none; animation: pulse 2s infinite; }
-        
         @keyframes pulse {
             0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.7); }
             70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(211, 47, 47, 0); }
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
         }
 
-        /* [오답 복습 모드 UI] */
+        /* [워터마크] 서명 스타일 */
+        .watermark {
+            position: fixed;
+            bottom: 15px;
+            right: 20px;
+            font-size: 13px;
+            color: #aaa;
+            font-family: 'Brush Script MT', 'Comic Sans MS', cursive; /* 필기체 느낌 */
+            opacity: 0.6;
+            pointer-events: none; /* 클릭 방해 안 하게 */
+            z-index: 9999;
+            font-style: italic;
+        }
+
+        /* 오답/개발자 모드 UI */
         body.retry-mode { background-color: #ffebee; }
         .card.retry-mode-card { border: 3px solid #ef5350; box-shadow: 0 0 20px rgba(244, 67, 54, 0.3); }
-        .retry-mode-card h2 { color: #c62828; }
-        .retry-mode-card #question { color: #d32f2f; }
-
-        /* [개발자 모드 UI] */
         body.dev-mode { background-color: #222; }
         .card.dev-mode-card { background-color: #333; color: #0f0; border: 2px solid #0f0; }
         .dev-mode-card h2, .dev-mode-card .subtitle, .dev-mode-card #question { color: #0f0; text-shadow: 0 0 5px #0f0; }
         .dev-mode-card input { background-color: #000; color: #0f0; border-color: #0f0; }
 
-        /* [본문 보기] */
+        /* 본문 보기 */
         .view-btn { background-color: #34495e; color: white; width: 100%; max-width: 550px; padding: 15px; border-radius: 15px; margin-top: 10px; font-size: 1.1em; border: none; cursor: pointer; }
-        #textBody { display: none; width: 95%; max-width: 600px; margin-bottom: 50px; }
+        #textBody { display: none; width: 95%; max-width: 600px; margin-bottom: 50px; z-index: 20; }
         
-        /* 아코디언 */
         details { background: white; margin-bottom: 10px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; }
         summary { padding: 15px; font-weight: bold; cursor: pointer; background-color: #fff; list-style: none; display: flex; justify-content: space-between; align-items: center; }
         summary::after { content: '▼'; font-size: 0.8em; color: #999; transition: 0.2s; }
@@ -81,7 +89,6 @@
         .meaning { color: #666; font-size: 0.9em; }
         .sub-item { padding: 8px 12px; border-top: 1px solid #eee; font-size: 0.9em; color: #555; }
 
-        /* 참고 박스 */
         .ref-box { background-color: #fff3e0; border: 2px solid #ffe0b2; border-radius: 15px; padding: 20px; margin-top: 20px; text-align: left; }
         .ref-box h4 { margin: 0 0 10px 0; color: #e65100; font-size: 1.1em; border-bottom: 1px dashed #e65100; padding-bottom: 5px; }
         .ref-list { list-style: none; padding: 0; margin: 0; font-size: 0.95em; color: #5d4037; }
@@ -97,6 +104,8 @@
 </head>
 <body>
 
+    <div class="watermark">made by 재훈 with Gemini</div>
+
     <div class="card" id="mainCard">
         <h2 id="mainTitle">🇨🇳 짱 라오쉬 수행 연습</h2>
         <div class="subtitle">
@@ -107,6 +116,8 @@
             <div class="mode-select-area">
                 <select id="chapterSelect" onchange="resetAndNext()">
                     <option value="0">🔀 전체 랜덤 (기본)</option>
+                    <option value="5" class="advanced-option">🧪 응용 모드 (변형 문제만)</option>
+                    <option disabled>──────────</option>
                     <option value="1">1️⃣ 본문 1 (이름/국적)</option>
                     <option value="2">2️⃣ 본문 2 (친구/외모)</option>
                     <option value="3">3️⃣ 본문 3 (가족/나이)</option>
@@ -141,22 +152,14 @@
 
     <script>
         // ==========================================
-        // [1] TTS (음성 듣기) 기능 함수
+        // [1] TTS
         // ==========================================
         function speak(text) {
-            // 브라우저가 TTS 지원하는지 확인
-            if (!window.speechSynthesis) {
-                alert("이 브라우저는 음성 듣기를 지원하지 않습니다.");
-                return;
-            }
-            // 기존 음성 취소 (중복 방지)
+            if (!window.speechSynthesis) return;
             window.speechSynthesis.cancel();
-            
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'zh-CN'; // 중국어 설정
-            utterance.rate = 0.8; // 속도 (0.8배속이 적당함)
-            utterance.pitch = 1; 
-            
+            utterance.lang = 'zh-CN';
+            utterance.rate = 0.8; 
             window.speechSynthesis.speak(utterance);
         }
 
@@ -170,36 +173,55 @@
         // ==========================================
         const quizDb = [
             // --- [본문 1] ---
-            { ch: 1, w: 1.5, hanzi: "你叫什么名字?", answer: "Ni3 jia4o she2nme mi2ngzi?", meaning: "이름이 뭐니?" },
-            { ch: 1, w: 1, hanzi: "我叫金东民。", answer: "Wo3 jia4o Ji1n Do1ngmi2n.", meaning: "난 김동민이야." },
-            { ch: 1, w: 1.5, hanzi: "你是哪国人?", answer: "Ni3 shi4 na3 guo2 re2n?", meaning: "어느 나라 사람이니?" },
-            { ch: 1, w: 1, hanzi: "我是韩国人。", answer: "Wo3 shi4 Ha2nguo2re2n.", meaning: "난 한국인이야." },
-            { ch: 1, w: 1, hanzi: "我是中国人。", answer: "Wo3 shi4 Zho1ngguo2re2n.", meaning: "난 중국인이야." },
+            { ch: 1, w: 1.5, isVar: false, hanzi: "你叫什么名字?", answer: "Ni3 jia4o she2nme mi2ngzi?", meaning: "이름이 뭐니?" },
+            { ch: 1, w: 1, isVar: false, hanzi: "我叫金东民。", answer: "Wo3 jia4o Ji1n Do1ngmi2n.", meaning: "난 김동민이야." },
+            { ch: 1, w: 1.5, isVar: false, hanzi: "你是哪国人?", answer: "Ni3 shi4 na3 guo2 re2n?", meaning: "어느 나라 사람이니?" },
+            { ch: 1, w: 1, isVar: false, hanzi: "我是韩国人。", answer: "Wo3 shi4 Ha2nguo2re2n.", meaning: "난 한국인이야." },
+            { ch: 1, w: 1, isVar: true, hanzi: "我是中国人。", answer: "Wo3 shi4 Zho1ngguo2re2n.", meaning: "난 중국인이야. (응용)" },
+            { ch: 1, w: 1, isVar: true, hanzi: "我是日本人。", answer: "Wo3 shi4 Ri4be3nre2n.", meaning: "난 일본인이야. (응용)" },
+            { ch: 1, w: 1, isVar: true, hanzi: "我是意大利人。", answer: "Wo3 shi4 Yi4da4li4re2n.", meaning: "난 이탈리아인이야. (응용)" },
 
             // --- [본문 2] ---
-            { ch: 2, w: 1, hanzi: "他很帅!", answer: "Ta1 he3n shua4i!", meaning: "그는 잘생겼어!" },
-            { ch: 2, w: 1, hanzi: "他是我的朋友。", answer: "Ta1 shi4 wo3 de pe2ngyou.", meaning: "그는 내 친구야." },
-            { ch: 2, w: 1, hanzi: "他是美国人吗?", answer: "Ta1 shi4 Me3iguo2re2n ma?", meaning: "그는 미국인이니?" },
-            { ch: 2, w: 1, hanzi: "不是,他是加拿大人。", answer: "Bu2 shi4, ta1 shi4 Jia1na2da4re2n.", meaning: "아니, 그는 캐나다인이야." },
+            { ch: 2, w: 1, isVar: false, hanzi: "他很帅!", answer: "Ta1 he3n shua4i!", meaning: "그는 잘생겼어!" },
+            { ch: 2, w: 1, isVar: false, hanzi: "他是我的朋友。", answer: "Ta1 shi4 wo3 de pe2ngyou.", meaning: "그는 내 친구야." },
+            { ch: 2, w: 1, isVar: false, hanzi: "他是美国人吗?", answer: "Ta1 shi4 Me3iguo2re2n ma?", meaning: "그는 미국인이니?" },
+            { ch: 2, w: 1, isVar: false, hanzi: "不是,他是加拿大人。", answer: "Bu2 shi4, ta1 shi4 Jia1na2da4re2n.", meaning: "아니, 그는 캐나다인이야." },
 
             // --- [본문 3] ---
-            { ch: 3, w: 1, hanzi: "她是谁?", answer: "Ta1 shi4 she2i?", meaning: "그녀는 누구니?" },
-            { ch: 3, w: 1, hanzi: "她是我妹妹。", answer: "Ta1 shi4 wo3 me4imei.", meaning: "그녀는 내 여동생이야." },
-            { ch: 3, w: 1, hanzi: "他是谁?", answer: "Ta1 shi4 she2i?", meaning: "그는 누구니?" },
-            { ch: 3, w: 1, hanzi: "她很像你!", answer: "Ta1 he3n xia4ng ni3!", meaning: "그녀는 널 많이 닮았어!" },
-            { ch: 3, w: 1, hanzi: "她几岁?", answer: "Ta1 ji3 sui4?", meaning: "그녀는 몇 살이니?" },
-            { ch: 3, w: 1, hanzi: "今年八岁。", answer: "Ji1nnia2n ba1 sui4.", meaning: "올해 8살이야." },
+            { ch: 3, w: 1, isVar: false, hanzi: "她是谁?", answer: "Ta1 shi4 she2i?", meaning: "그녀는 누구니?" },
+            { ch: 3, w: 1, isVar: false, hanzi: "她是我妹妹。", answer: "Ta1 shi4 wo3 me4imei.", meaning: "그녀는 내 여동생이야." },
+            { ch: 3, w: 1, isVar: true, hanzi: "他是谁?", answer: "Ta1 shi4 she2i?", meaning: "그는 누구니? (응용)" },
+            { ch: 3, w: 1, isVar: false, hanzi: "她很像你!", answer: "Ta1 he3n xia4ng ni3!", meaning: "그녀는 널 많이 닮았어!" },
+            { ch: 3, w: 1, isVar: false, hanzi: "她几岁?", answer: "Ta1 ji3 sui4?", meaning: "그녀는 몇 살이니?" },
+            { ch: 3, w: 1, isVar: false, hanzi: "今年八岁。", answer: "Ji1nnia2n ba1 sui4.", meaning: "올해 8살이야." },
+            { ch: 3, w: 1, isVar: true, hanzi: "九岁。", answer: "Jiu3 sui4.", meaning: "9살 (응용)" },
+            { ch: 3, w: 1, isVar: true, hanzi: "十岁。", answer: "Shi2 sui4.", meaning: "10살 (응용)" },
+            { ch: 3, w: 1, isVar: true, hanzi: "十一岁。", answer: "Shi2yi1 sui4.", meaning: "11살 (응용)" },
+            { ch: 3, w: 1, isVar: true, hanzi: "十二岁。", answer: "Shi2er4 sui4.", meaning: "12살 (응용)" },
+            { ch: 3, w: 1, isVar: true, hanzi: "十三岁。", answer: "Shi2sa1n sui4.", meaning: "13살 (응용)" },
+            { ch: 3, w: 1, isVar: true, hanzi: "十四岁。", answer: "Shi2si4 sui4.", meaning: "14살 (응용)" },
+            { ch: 3, w: 1, isVar: true, hanzi: "十五岁。", answer: "Shi2wu3 sui4.", meaning: "15살 (응용)" },
+            { ch: 3, w: 1, isVar: true, hanzi: "十六岁。", answer: "Shi2liu4 sui4.", meaning: "16살 (응용)" },
+            { ch: 3, w: 1, isVar: true, hanzi: "十七岁。", answer: "Shi2qi1 sui4.", meaning: "17살 (응용)" },
+            { ch: 3, w: 1, isVar: true, hanzi: "十八岁。", answer: "Shi2ba1 sui4.", meaning: "18살 (응용)" },
 
             // --- [본문 4] ---
-            { ch: 4, w: 1, hanzi: "你有哥哥吗?", answer: "Ni3 yo3u ge1ge ma?", meaning: "너 형(오빠) 있니?" },
-            { ch: 4, w: 1, hanzi: "有,这是我哥哥。", answer: "Yo3u, zhe4 shi4 wo3 ge1ge.", meaning: "있어, 이 사람은 우리 형(오빠)이야." },
-            { ch: 4, w: 1, hanzi: "我有两个哥哥。", answer: "Wo3 yo3u lia3ng ge ge1ge.", meaning: "난 형(오빠)이 두 명 있어." },
-            { ch: 4, w: 1, hanzi: "我是独生子。", answer: "Wo3 shi4 du2she1ngzi3.", meaning: "난 외동아들(독자)이야." },
-            { ch: 4, w: 1, hanzi: "我是独生女。", answer: "Wo3 shi4 du2she1ngnv3.", meaning: "난 외동딸이야. (입력: nv3)" },
-            { ch: 4, w: 1, hanzi: "他上几年级?", answer: "Ta1 sha4ng ji3 nia2nji2?", meaning: "그는 몇 학년이니?" },
-            { ch: 4, w: 1.2, hanzi: "高中二年级。", answer: "Ga1ozho1ng er4 nia2nji2.", meaning: "고등학교 2학년." },
-            { ch: 4, w: 1, hanzi: "他是我弟弟。", answer: "Ta1 shi4 wo3 di4di.", meaning: "그는 내 남동생이야." },
-            { ch: 4, w: 1, hanzi: "他是我哥哥。", answer: "Ta1 shi4 wo3 ge1ge.", meaning: "그는 내 형(오빠)이야." }
+            { ch: 4, w: 1, isVar: false, hanzi: "你有哥哥吗?", answer: "Ni3 yo3u ge1ge ma?", meaning: "너 형(오빠) 있니?" },
+            { ch: 4, w: 1, isVar: false, hanzi: "有,这是我哥哥。", answer: "Yo3u, zhe4 shi4 wo3 ge1ge.", meaning: "있어, 이 사람은 우리 형(오빠)이야." },
+            { ch: 4, w: 1, isVar: true, hanzi: "我有两个哥哥。", answer: "Wo3 yo3u lia3ng ge ge1ge.", meaning: "난 형(오빠)이 두 명 있어. (응용)" },
+            { ch: 4, w: 1, isVar: true, hanzi: "我是独生子。", answer: "Wo3 shi4 du2she1ngzi3.", meaning: "난 외동아들(독자)이야. (응용)" },
+            { ch: 4, w: 1, isVar: true, hanzi: "我是独生女。", answer: "Wo3 shi4 du2she1ngnv3.", meaning: "난 외동딸이야. (응용)" },
+            { ch: 4, w: 1, isVar: false, hanzi: "他上几年级?", answer: "Ta1 sha4ng ji3 nia2nji2?", meaning: "그는 몇 학년이니?" },
+            { ch: 4, w: 1.2, isVar: false, hanzi: "高中二年级。", answer: "Ga1ozho1ng er4 nia2nji2.", meaning: "고등학교 2학년." },
+            { ch: 4, w: 1, isVar: true, hanzi: "他是我弟弟。", answer: "Ta1 shi4 wo3 di4di.", meaning: "그는 내 남동생이야. (응용)" },
+            { ch: 4, w: 1, isVar: true, hanzi: "他是我哥哥。", answer: "Ta1 shi4 wo3 ge1ge.", meaning: "그는 내 형(오빠)이야. (응용)" },
+            
+            // 학년 응용문제
+            { ch: 4, w: 1, isVar: true, hanzi: "小学六年级。", answer: "Xia3oxue2 liu4 nia2nji2.", meaning: "초등학교 6학년. (응용)" },
+            { ch: 4, w: 1, isVar: true, hanzi: "初中一年级。", answer: "Chu1zho1ng yi1 nia2nji2.", meaning: "중학교 1학년. (응용)" },
+            { ch: 4, w: 1, isVar: true, hanzi: "初中二年级。", answer: "Chu1zho1ng er4 nia2nji2.", meaning: "중학교 2학년. (응용)" },
+            { ch: 4, w: 1, isVar: true, hanzi: "初中三年级。", answer: "Chu1zho1ng sa1n nia2nji2.", meaning: "중학교 3학년. (응용)" },
+            { ch: 4, w: 1, isVar: true, hanzi: "高中一年级。", answer: "Ga1ozho1ng yi1 nia2nji2.", meaning: "고등학교 1학년. (응용)" }
         ];
 
         // ==========================================
@@ -310,14 +332,11 @@
         // ==========================================
         let currentIdx = 0;
         let currentPool = [];
-        
         let currentStep = 0;
         let cycleCount = 1;
         let wrongCount = 0;
-
         let wrongList = [];
         let isRetryMode = false;
-
         let devMode = false;
         let qKeyCount = 0;
         let qKeyTimer = null;
@@ -362,8 +381,11 @@
         function updatePool() {
             if (isRetryMode) return;
             const mode = document.getElementById('chapterSelect').value;
+            
             if (mode == "0") {
                 currentPool = quizDb;
+            } else if (mode == "5") {
+                currentPool = quizDb.filter(item => item.isVar === true);
             } else {
                 currentPool = quizDb.filter(item => item.ch == mode);
             }
@@ -399,7 +421,7 @@
             if (!isRetryMode) updatePool();
 
             if (currentPool.length === 0 && !isRetryMode) {
-                alert("해당 단원에 문제가 없습니다.");
+                alert("해당 조건의 문제가 없습니다.");
                 return;
             }
             
@@ -474,7 +496,6 @@
 
         document.getElementById("answerInput").addEventListener("keypress", function(e) { if (e.key === "Enter") checkAnswer(); });
 
-        // [족보 렌더링 + TTS 버튼 추가]
         function renderStudyBody() {
             const container = document.getElementById('textBody');
             let html = '<h3 style="margin-top:0; color:#333; border-bottom:2px solid #333; padding-bottom:10px;">📚 수행평가 족보</h3>';
@@ -485,7 +506,6 @@
                     <div class="content-box">`;
                 
                 section.lines.forEach(line => {
-                    // 한자 옆에 TTS 버튼 추가
                     html += `<div class="dialog-row">
                         <div class="hanzi">
                             ${line.h}
@@ -509,7 +529,7 @@
                 html += `</div></details>`;
             });
 
-            // 참고 박스
+            // [업데이트] 참고 박스에 학년 줄임말 설명 추가
             html += `
             <div class="ref-box">
                 <h4>💡 중요 체크 포인트 (참고)</h4>
@@ -518,6 +538,7 @@
                     <li><span class="highlight-code">Jīnnián bā suì.</span><br>문장 끝의 <b>suì(살)</b>는 생략 가능합니다. (예: Jīnnián bā.)</li>
                     <li><span class="highlight-code">Tā shàng jǐ niánjí?</span><br>동사 <b>shàng(다니다)</b>은 생략 가능합니다.</li>
                     <li><span class="highlight-code">nu..3 (ü)</span><br>자판 입력 시 <b>nv3</b>로 입력하세요.</li>
+                    <li><span class="highlight-code">Chu1zho1ng yi1 nia2nji2</span><br>학년은 줄여서 말할 수 있습니다. (예: <b>Chū yī</b>)</li>
                 </ul>
             </div>
             `;
