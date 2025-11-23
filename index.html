@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>짱 라오쉬 수행 연습 (Ultimate)</title>
+    <title>짱 라오쉬 수행 연습</title>
     <style>
         /* [디자인] 기본 설정 */
         html { overflow-y: scroll; }
@@ -49,7 +49,7 @@
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
         }
 
-        /* [워터마크] */
+        /* [워터마크 수정됨] */
         .watermark {
             position: fixed; bottom: 15px; right: 20px; font-size: 14px; color: #888;
             font-family: 'Segoe Print', 'Chalkboard SE', 'Comic Sans MS', sans-serif;
@@ -88,7 +88,6 @@
         .pinyin { color: #e67e22; font-weight: bold; display: block; }
         .meaning { color: #666; font-size: 0.9em; }
         
-        /* 체크박스 스타일 (집중학습용) */
         .select-check { width: 20px; height: 20px; margin-right: 15px; cursor: pointer; display: none; } 
         .selection-mode .select-check { display: block; }
 
@@ -106,7 +105,6 @@
         .wrong { color: #e74c3c; }
         .meaning-text { display: block; font-size: 0.9em; color: #555; margin-top: 5px; font-weight: normal; }
 
-        /* 집중학습 시작 버튼 */
         .start-intensive-btn { background-color: #e65100; color: white; width: 100%; padding: 15px; font-size: 1.2em; border: none; border-radius: 15px; margin-top: 15px; font-weight: bold; cursor: pointer; display: none; }
         .start-intensive-btn:hover { background-color: #bf360c; }
     </style>
@@ -159,8 +157,7 @@
 
     <button class="view-btn" id="viewBtn" onclick="toggleBody()">📖 본문 보기 (참고 포함)</button>
 
-    <div id="textBody">
-        </div>
+    <div id="textBody"></div>
     <button class="start-intensive-btn" id="startIntensiveBtn" onclick="startIntensiveQuiz()">🎯 선택한 문제로 시작하기</button>
 
     <script>
@@ -189,25 +186,19 @@
         }
 
         // ==========================================
-        // [1] TTS (고성능)
+        // [1] TTS
         // ==========================================
         function speak(text) {
-            if (!window.speechSynthesis) { alert("TTS 미지원 브라우저"); return; }
+            if (!window.speechSynthesis) { alert("TTS 미지원"); return; }
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
-            
-            // 고성능 목소리(Google/Microsoft) 우선 선택
             const voices = window.speechSynthesis.getVoices();
-            const targetVoice = voices.find(v => 
-                v.lang.includes('zh') && (v.name.includes('Google') || v.name.includes('Microsoft'))
-            );
+            const targetVoice = voices.find(v => v.lang.includes('zh') && (v.name.includes('Google') || v.name.includes('Microsoft')));
             if (targetVoice) { utterance.voice = targetVoice; }
             else { utterance.lang = 'zh-CN'; }
-
             utterance.rate = 0.85; 
             window.speechSynthesis.speak(utterance);
         }
-        // 크롬 음성 로드 버그 방지
         window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 
         function speakCurrentQuestion() {
@@ -216,29 +207,31 @@
         }
 
         // ==========================================
-        // [2] 문제 데이터 (Quiz DB)
+        // [2] 문제 데이터 (Quiz DB) - 직역 반영 완료
         // ==========================================
         const quizDb = [
-            // 본문 1
-            { ch: 1, w: 1.5, isVar: false, hanzi: "你叫什么名字?", answer: "Ni3 jia4o she2nme mi2ngzi?", meaning: "이름이 뭐니?" },
-            { ch: 1, w: 1, isVar: false, hanzi: "我叫金东民。", answer: "Wo3 jia4o Ji1n Do1ngmi2n.", meaning: "난 김동민이야." },
-            { ch: 1, w: 1.5, isVar: false, hanzi: "你是哪国人?", answer: "Ni3 shi4 na3 guo2 re2n?", meaning: "어느 나라 사람이니?" },
-            { ch: 1, w: 1, isVar: false, hanzi: "我是韩国人。", answer: "Wo3 shi4 Ha2nguo2re2n.", meaning: "난 한국인이야." },
-            { ch: 1, w: 1, isVar: true, hanzi: "我是中国人。", answer: "Wo3 shi4 Zho1ngguo2re2n.", meaning: "난 중국인이야. (응용)" },
-            { ch: 1, w: 1, isVar: true, hanzi: "我是日本人。", answer: "Wo3 shi4 Ri4be3nre2n.", meaning: "난 일본인이야. (응용)" },
-            { ch: 1, w: 1, isVar: true, hanzi: "我是意大利人。", answer: "Wo3 shi4 Yi4da4li4re2n.", meaning: "난 이탈리아인이야. (응용)" },
-            // 본문 2
-            { ch: 2, w: 1, isVar: false, hanzi: "他很帅!", answer: "Ta1 he3n shua4i!", meaning: "그는 잘생겼어!" },
-            { ch: 2, w: 1, isVar: false, hanzi: "他是我的朋友。", answer: "Ta1 shi4 wo3 de pe2ngyou.", meaning: "그는 내 친구야." },
+            // --- [본문 1] ---
+            { ch: 1, w: 1.5, isVar: false, hanzi: "你叫什么名字?", answer: "Ni3 jia4o she2nme mi2ngzi?", meaning: "너는 무슨 이름이라고 불리니?" },
+            { ch: 1, w: 1, isVar: false, hanzi: "我叫金东民。", answer: "Wo3 jia4o Ji1n Do1ngmi2n.", meaning: "나는 김동민이라고 해." },
+            { ch: 1, w: 1.5, isVar: false, hanzi: "你是哪国人?", answer: "Ni3 shi4 na3 guo2 re2n?", meaning: "너는 어느 나라 사람이니?" },
+            { ch: 1, w: 1, isVar: false, hanzi: "我是韩国人。", answer: "Wo3 shi4 Ha2nguo2re2n.", meaning: "나는 한국인이다." },
+            { ch: 1, w: 1, isVar: true, hanzi: "我是中国人。", answer: "Wo3 shi4 Zho1ngguo2re2n.", meaning: "나는 중국인이다. (응용)" },
+            { ch: 1, w: 1, isVar: true, hanzi: "我是日本人。", answer: "Wo3 shi4 Ri4be3nre2n.", meaning: "나는 일본인이다. (응용)" },
+            { ch: 1, w: 1, isVar: true, hanzi: "我是意大利人。", answer: "Wo3 shi4 Yi4da4li4re2n.", meaning: "나는 이탈리아인이다. (응용)" },
+
+            // --- [본문 2] ---
+            { ch: 2, w: 1, isVar: false, hanzi: "他很帅!", answer: "Ta1 he3n shua4i!", meaning: "그는 매우 잘생겼다!" },
+            { ch: 2, w: 1, isVar: false, hanzi: "他是我的朋友。", answer: "Ta1 shi4 wo3 de pe2ngyou.", meaning: "그는 나의 친구이다." },
             { ch: 2, w: 1, isVar: false, hanzi: "他是美国人吗?", answer: "Ta1 shi4 Me3iguo2re2n ma?", meaning: "그는 미국인이니?" },
-            { ch: 2, w: 1, isVar: false, hanzi: "不是,他是加拿大人。", answer: "Bu2 shi4, ta1 shi4 Jia1na2da4re2n.", meaning: "아니, 그는 캐나다인이야." },
-            // 본문 3
+            { ch: 2, w: 1, isVar: false, hanzi: "不是,他是加拿大人。", answer: "Bu2 shi4, ta1 shi4 Jia1na2da4re2n.", meaning: "아니, 그는 캐나다인이다." },
+
+            // --- [본문 3] ---
             { ch: 3, w: 1, isVar: false, hanzi: "她是谁?", answer: "Ta1 shi4 she2i?", meaning: "그녀는 누구니?" },
-            { ch: 3, w: 1, isVar: false, hanzi: "她是我妹妹。", answer: "Ta1 shi4 wo3 me4imei.", meaning: "그녀는 내 여동생이야." },
+            { ch: 3, w: 1, isVar: false, hanzi: "她是我妹妹。", answer: "Ta1 shi4 wo3 me4imei.", meaning: "그녀는 나의 여동생이다." },
             { ch: 3, w: 1, isVar: true, hanzi: "他是谁?", answer: "Ta1 shi4 she2i?", meaning: "그는 누구니? (응용)" },
-            { ch: 3, w: 1, isVar: false, hanzi: "她很像你!", answer: "Ta1 he3n xia4ng ni3!", meaning: "그녀는 널 많이 닮았어!" },
+            { ch: 3, w: 1, isVar: false, hanzi: "她很像你!", answer: "Ta1 he3n xia4ng ni3!", meaning: "그녀는 너를 매우 닮았다!" },
             { ch: 3, w: 1, isVar: false, hanzi: "她几岁?", answer: "Ta1 ji3 sui4?", meaning: "그녀는 몇 살이니?" },
-            { ch: 3, w: 1, isVar: false, hanzi: "今年八岁。", answer: "Ji1nnia2n ba1 sui4.", meaning: "올해 8살이야." },
+            { ch: 3, w: 1, isVar: false, hanzi: "今年八岁。", answer: "Ji1nnia2n ba1 sui4.", meaning: "올해 8살이다." },
             { ch: 3, w: 1, isVar: true, hanzi: "九岁。", answer: "Jiu3 sui4.", meaning: "9살 (응용)" },
             { ch: 3, w: 1, isVar: true, hanzi: "十岁。", answer: "Shi2 sui4.", meaning: "10살 (응용)" },
             { ch: 3, w: 1, isVar: true, hanzi: "十一岁。", answer: "Shi2yi1 sui4.", meaning: "11살 (응용)" },
@@ -249,16 +242,17 @@
             { ch: 3, w: 1, isVar: true, hanzi: "十六岁。", answer: "Shi2liu4 sui4.", meaning: "16살 (응용)" },
             { ch: 3, w: 1, isVar: true, hanzi: "十七岁。", answer: "Shi2qi1 sui4.", meaning: "17살 (응용)" },
             { ch: 3, w: 1, isVar: true, hanzi: "十八岁。", answer: "Shi2ba1 sui4.", meaning: "18살 (응용)" },
-            // 본문 4
-            { ch: 4, w: 1, isVar: false, hanzi: "你有哥哥吗?", answer: "Ni3 yo3u ge1ge ma?", meaning: "너 형(오빠) 있니?" },
-            { ch: 4, w: 1, isVar: false, hanzi: "有,这是我哥哥。", answer: "Yo3u, zhe4 shi4 wo3 ge1ge.", meaning: "있어, 이 사람은 우리 형(오빠)이야." },
-            { ch: 4, w: 1, isVar: true, hanzi: "我有两个哥哥。", answer: "Wo3 yo3u lia3ng ge ge1ge.", meaning: "난 형(오빠)이 두 명 있어. (응용)" },
-            { ch: 4, w: 1, isVar: true, hanzi: "我是独生子。", answer: "Wo3 shi4 du2she1ngzi3.", meaning: "난 외동아들(독자)이야. (응용)" },
-            { ch: 4, w: 1, isVar: true, hanzi: "我是独生女。", answer: "Wo3 shi4 du2she1ngnv3.", meaning: "난 외동딸이야. (응용)" },
-            { ch: 4, w: 1, isVar: false, hanzi: "他上几年级?", answer: "Ta1 sha4ng ji3 nia2nji2?", meaning: "그는 몇 학년이니?" },
-            { ch: 4, w: 1.2, isVar: false, hanzi: "高中二年级。", answer: "Ga1ozho1ng er4 nia2nji2.", meaning: "고등학교 2학년." },
-            { ch: 4, w: 1, isVar: true, hanzi: "他是我弟弟。", answer: "Ta1 shi4 wo3 di4di.", meaning: "그는 내 남동생이야. (응용)" },
-            { ch: 4, w: 1, isVar: true, hanzi: "他是我哥哥。", answer: "Ta1 shi4 wo3 ge1ge.", meaning: "그는 내 형(오빠)이야. (응용)" },
+
+            // --- [본문 4] ---
+            { ch: 4, w: 1, isVar: false, hanzi: "你有哥哥吗?", answer: "Ni3 yo3u ge1ge ma?", meaning: "너는 형(오빠)이 있니?" },
+            { ch: 4, w: 1, isVar: false, hanzi: "有,这是我哥哥。", answer: "Yo3u, zhe4 shi4 wo3 ge1ge.", meaning: "있어, 이 사람은 나의 형(오빠)이다." },
+            { ch: 4, w: 1, isVar: true, hanzi: "我有两个哥哥。", answer: "Wo3 yo3u lia3ng ge ge1ge.", meaning: "나는 두 명의 형(오빠)이 있다. (응용)" },
+            { ch: 4, w: 1, isVar: true, hanzi: "我是独生子。", answer: "Wo3 shi4 du2she1ngzi3.", meaning: "나는 독자(외동아들)이다. (응용)" },
+            { ch: 4, w: 1, isVar: true, hanzi: "我是独生女。", answer: "Wo3 shi4 du2she1ngnv3.", meaning: "나는 독녀(외동딸)이다. (응용)" },
+            { ch: 4, w: 1, isVar: false, hanzi: "他上几年级?", answer: "Ta1 sha4ng ji3 nia2nji2?", meaning: "그는 몇 학년(에) 다니니?" },
+            { ch: 4, w: 1.2, isVar: false, hanzi: "高中二年级。", answer: "Ga1ozho1ng er4 nia2nji2.", meaning: "고등학교 2학년이다." },
+            { ch: 4, w: 1, isVar: true, hanzi: "他是我弟弟。", answer: "Ta1 shi4 wo3 di4di.", meaning: "그는 나의 남동생이다. (응용)" },
+            { ch: 4, w: 1, isVar: true, hanzi: "他是我哥哥。", answer: "Ta1 shi4 wo3 ge1ge.", meaning: "그는 나의 형(오빠)이다. (응용)" },
             { ch: 4, w: 1, isVar: true, hanzi: "小学六年级。", answer: "Xia3oxue2 liu4 nia2nji2.", meaning: "초등학교 6학년. (응용)" },
             { ch: 4, w: 1, isVar: true, hanzi: "初中一年级。", answer: "Chu1zho1ng yi1 nia2nji2.", meaning: "중학교 1학년. (응용)" },
             { ch: 4, w: 1, isVar: true, hanzi: "初中二年级。", answer: "Chu1zho1ng er4 nia2nji2.", meaning: "중학교 2학년. (응용)" },
@@ -267,21 +261,21 @@
         ];
 
         // ==========================================
-        // [3] 족보 데이터
+        // [3] 족보 데이터 (직역 수정 완료)
         // ==========================================
         const studyContents = [
             {
                 title: "1️⃣ 본문 1 (이름/국적)",
                 lines: [
-                    { h: "你叫什么名字?", p: "Nǐ jiào shénme míngzi?", m: "이름이 뭐니?" },
-                    { h: "我叫金东民。", p: "Wǒ jiào Jīn Dōngmín.", m: "난 김동민이야." },
-                    { h: "你是哪国人?", p: "Nǐ shì nǎ guó rén?", m: "어느 나라 사람이니?" },
+                    { h: "你叫什么名字?", p: "Nǐ jiào shénme míngzi?", m: "너는 무슨 이름이라고 불리니?" },
+                    { h: "我叫金东民。", p: "Wǒ jiào Jīn Dōngmín.", m: "나는 김동민이라고 해." },
+                    { h: "你是哪国人?", p: "Nǐ shì nǎ guó rén?", m: "너는 어느 나라 사람이니?" },
                     { 
-                        h: "我是韩国人。", p: "Wǒ shì Hánguórén.", m: "난 한국인이야.",
+                        h: "我是韩国人。", p: "Wǒ shì Hánguórén.", m: "나는 한국인이다.",
                         subs: [
-                            { h: "我是中国人", m: "중국인이야" },
-                            { h: "我是日本人", m: "일본인이야" },
-                            { h: "我是意大利人", m: "이탈리아인이야" }
+                            { h: "我是中国人", m: "나는 중국인이다." },
+                            { h: "我是日本人", m: "나는 일본인이다." },
+                            { h: "我是意大利人", m: "나는 이탈리아인이다." }
                         ]
                     }
                 ]
@@ -289,8 +283,8 @@
             {
                 title: "2️⃣ 본문 2 (친구/외모)",
                 lines: [
-                    { h: "他很帅!", p: "Tā hěn shuài!", m: "그는 잘생겼어!" },
-                    { h: "他是我的朋友。", p: "Tā shì wǒ de péngyou.", m: "그는 내 친구야." },
+                    { h: "他很帅!", p: "Tā hěn shuài!", m: "그는 매우 잘생겼다!" },
+                    { h: "他是我的朋友。", p: "Tā shì wǒ de péngyou.", m: "그는 나의 친구이다." },
                     { 
                         h: "他是美国人吗?", p: "Tā shì Měiguórén ma?", m: "그는 미국인이니?",
                         subs: [
@@ -298,7 +292,7 @@
                              { h: "他是日本人吗?", m: "그는 일본인이니?" }
                         ]
                     },
-                    { h: "不是,他是加拿大人。", p: "Bú shì, tā shì Jiānádàrén.", m: "아니, 캐나다인이야." }
+                    { h: "不是,他是加拿大人。", p: "Bú shì, tā shì Jiānádàrén.", m: "아니, 그는 캐나다인이다." }
                 ]
             },
             {
@@ -309,19 +303,19 @@
                         subs: [ { h: "他是谁? (He)", m: "그는 누구니?" } ]
                     },
                     { 
-                        h: "她是我妹妹。", p: "Tā shì wǒ mèimei.", m: "내 여동생이야.",
+                        h: "她是我妹妹。", p: "Tā shì wǒ mèimei.", m: "그녀는 나의 여동생이다.",
                         subs: [
-                            { h: "姐姐 (jiějie)", m: "누나/언니" },
-                            { h: "妈妈 (māma)", m: "엄마" },
-                            { h: "哥哥 (gēge)", m: "형/오빠" },
-                            { h: "弟弟 (dìdi)", m: "남동생" },
-                            { h: "爸爸 (bàba)", m: "아빠" }
+                            { h: "姐姐 (jiějie)", m: "나의 누나(언니)" },
+                            { h: "妈妈 (māma)", m: "나의 엄마" },
+                            { h: "哥哥 (gēge)", m: "나의 형(오빠)" },
+                            { h: "弟弟 (dìdi)", m: "나의 남동생" },
+                            { h: "爸爸 (bàba)", m: "나의 아빠" }
                         ]
                     },
-                    { h: "她很像你!", p: "Tā hěn xiàng nǐ!", m: "너랑 많이 닮았다!" },
-                    { h: "她几岁?", p: "Tā jǐ suì?", m: "몇 살이니?" },
+                    { h: "她很像你!", p: "Tā hěn xiàng nǐ!", m: "그녀는 너를 매우 닮았다!" },
+                    { h: "她几岁?", p: "Tā jǐ suì?", m: "그녀는 몇 살이니?" },
                     { 
-                        h: "今年八岁。", p: "Jīnnián bā suì.", m: "올해 8살이야.",
+                        h: "今年八岁。", p: "Jīnnián bā suì.", m: "올해 8살이다.",
                         subs: [
                             { h: "九岁 (jiǔ suì)", m: "9살" },
                             { h: "十岁 (shí suì)", m: "10살" },
@@ -340,23 +334,23 @@
             {
                 title: "4️⃣ 본문 4 (형제/학년)",
                 lines: [
-                    { h: "你有哥哥吗?", p: "Nǐ yǒu gēge ma?", m: "형(오빠) 있니?" },
+                    { h: "你有哥哥吗?", p: "Nǐ yǒu gēge ma?", m: "너는 형(오빠)이 있니?" },
                     { 
-                        h: "有,这是我哥哥。", p: "Yǒu, zhè shì wǒ gēge.", m: "있어, 이쪽은 우리 형이야.",
+                        h: "有,这是我哥哥。", p: "Yǒu, zhè shì wǒ gēge.", m: "있어, 이 사람은 나의 형(오빠)이다.",
                         subs: [
-                            { h: "有, 这是我弟弟 (dìdi)", m: "내 남동생이야" },
-                            { h: "有, 这是我姐姐 (jie3jie)", m: "내 누나야" },
-                            { h: "有, 这是我爸爸 (ba4ba)", m: "우리 아빠야" },
-                            { h: "有, 这是我妈妈 (ma1ma)", m: "우리 엄마야" }
+                            { h: "有, 这是我弟弟 (dìdi)", m: "나의 남동생이다" },
+                            { h: "有, 这是我姐姐 (jie3jie)", m: "나의 누나이다" },
+                            { h: "有, 这是我爸爸 (ba4ba)", m: "나의 아빠이다" },
+                            { h: "有, 这是我妈妈 (ma1ma)", m: "나의 엄마이다" }
                         ]
                     },
-                    { h: "我有两个哥哥。", p: "Wǒ yǒu liǎng gè gēge.", m: "난 형이 두 명 있어." },
-                    { h: "我是独生子。", p: "Wǒ shì dúshēngzǐ.", m: "난 외동아들이야." },
-                    { h: "我是独生女。", p: "Wǒ shì dúshēngnǚ.", m: "난 외동딸이야." },
+                    { h: "我有两个哥哥。", p: "Wǒ yǒu liǎng gè gēge.", m: "나는 두 명의 형(오빠)이 있다." },
+                    { h: "我是独生子。", p: "Wǒ shì dúshēngzǐ.", m: "나는 독자(외동아들)이다." },
+                    { h: "我是独生女。", p: "Wǒ shì dúshēngnǚ.", m: "나는 독녀(외동딸)이다." },
 
-                    { h: "他上几年级?", p: "Tā shàng jǐ niánjí?", m: "몇 학년이니?" },
+                    { h: "他上几年级?", p: "Tā shàng jǐ niánjí?", m: "그는 몇 학년(에) 다니니?" },
                     { 
-                        h: "高中二年级。", p: "Gāozhōng èr niánjí.", m: "고등학교 2학년이야.",
+                        h: "高中二年级。", p: "Gāozhōng èr niánjí.", m: "고등학교 2학년이다.",
                         subs: [
                             { h: "小学六年级 (Xiǎoxué liù niánjí)", m: "초등학교 6학년" },
                             { h: "初中一年级 (Chūzhōng yī niánjí)", m: "중학교 1학년" },
@@ -383,7 +377,6 @@
         let qKeyCount = 0;
         let qKeyTimer = null;
 
-        // 치트키
         document.addEventListener('keydown', function(event) {
             if (event.key.toLowerCase() === 'q') {
                 qKeyCount++;
@@ -405,28 +398,18 @@
             }
         });
 
-        // 모드 변경 처리
         function handleModeChange() {
             const mode = document.getElementById('chapterSelect').value;
-            
-            // [99] 집중 공략 모드인 경우
             if (mode == "99") {
-                // 1. 카드 숨기기, 2. 텍스트바디(족보) 보이기, 3. 체크박스 모드 활성화
                 document.getElementById('mainCard').style.display = 'none';
-                document.getElementById('viewBtn').style.display = 'none'; // 버튼 숨김
-                
+                document.getElementById('viewBtn').style.display = 'none';
                 const textBody = document.getElementById('textBody');
                 textBody.style.display = 'block';
-                textBody.classList.add('selection-mode'); // 체크박스 보이게 하는 클래스 추가
-                
-                // 렌더링 및 시작 버튼 표시
+                textBody.classList.add('selection-mode');
                 renderStudyBody();
                 document.getElementById('startIntensiveBtn').style.display = 'block';
-                
-                alert("🎯 [집중 공략 모드]\n원하는 문장을 체크한 뒤, 맨 아래 '시작하기'를 누르세요!");
-            } 
-            else {
-                // 일반 모드
+                alert("🎯 [집중 공략]\n원하는 문장을 체크하고 '시작하기'를 누르세요.");
+            } else {
                 resetAndNext();
             }
         }
@@ -437,10 +420,8 @@
             wrongList = [];
             isRetryMode = false;
             
-            // UI 초기화
             document.getElementById('mainCard').style.display = 'block';
             document.getElementById('viewBtn').style.display = 'block';
-            
             document.getElementById('textBody').style.display = 'none';
             document.getElementById('textBody').classList.remove('selection-mode');
             document.getElementById('startIntensiveBtn').style.display = 'none';
@@ -465,47 +446,28 @@
             } else if (mode == "5") {
                 currentPool = quizDb.filter(item => item.isVar === true);
             } else if (mode == "99") {
-                // 집중 모드는 별도 함수(startIntensiveQuiz)에서 처리함. 여기선 패스.
                 return; 
             } else {
                 currentPool = quizDb.filter(item => item.ch == mode);
             }
         }
 
-        // [집중 학습 시작 로직]
         function startIntensiveQuiz() {
-            // 1. 체크된 항목 수집
             const checkboxes = document.querySelectorAll('.select-check:checked');
-            if (checkboxes.length === 0) {
-                alert("선택된 문장이 없습니다! 최소 1개 이상 선택해주세요.");
-                return;
-            }
-
+            if (checkboxes.length === 0) { alert("선택된 문장이 없습니다."); return; }
             const selectedHanzi = Array.from(checkboxes).map(cb => cb.value);
-            
-            // 2. 퀴즈 DB에서 매칭되는 문제 찾기
-            // (주의: 족보에는 있는데 퀴즈DB엔 없는 문제(아빠 등)는 제외됨)
             const newPool = quizDb.filter(item => selectedHanzi.includes(item.hanzi));
-            
-            if (newPool.length === 0) {
-                alert("선택하신 문장 중 퀴즈 데이터가 있는 문제가 없습니다.");
-                return;
-            }
+            if (newPool.length === 0) { alert("선택한 문장의 퀴즈 데이터가 없습니다."); return; }
 
-            // 3. 풀 설정 및 UI 전환
             currentPool = newPool;
-            currentStep = 0;
-            cycleCount = 1;
-            wrongList = [];
+            currentStep = 0; cycleCount = 1; wrongList = [];
             
-            // 화면 전환
             document.getElementById('textBody').style.display = 'none';
             document.getElementById('startIntensiveBtn').style.display = 'none';
             document.getElementById('mainCard').style.display = 'block';
             document.getElementById('viewBtn').style.display = 'block';
             
-            // 다음 문제 진행
-            nextProblem(true); // true = 풀 업데이트 스킵 (이미 수동 설정했으므로)
+            nextProblem(true);
         }
 
         function getWeightedRandomIndex() {
@@ -532,28 +494,18 @@
                 document.getElementById('retryBtn').style.display = 'none';
                 document.getElementById('mainTitle').innerText = "🇨🇳 짱 라오쉬 수행 연습";
                 document.getElementById('chapterSelect').disabled = false;
-                
-                // 집중모드였다면 다시 선택화면으로 가는게 아니라 그냥 유지
-                if (document.getElementById('chapterSelect').value != "99") {
-                    updatePool();
-                }
+                if (document.getElementById('chapterSelect').value != "99") updatePool();
             }
 
             if (!isRetryMode && !skipUpdate) updatePool();
 
-            if (currentPool.length === 0 && !isRetryMode) {
-                // 집중모드에서 선택 안하고 넘어온 경우 등 예외
-                return;
-            }
+            if (currentPool.length === 0 && !isRetryMode) { return; }
             
             let poolSize = isRetryMode ? wrongList.length : currentPool.length;
 
             if (!isRetryMode) {
                 currentStep++;
-                if (currentStep > poolSize) {
-                    cycleCount++;
-                    currentStep = 1;
-                }
+                if (currentStep > poolSize) { cycleCount++; currentStep = 1; }
                 let displayStep = `${currentStep}번째`;
                 document.getElementById('counterDisplay').innerText = `${cycleCount}회차 ${displayStep}`;
             } else {
@@ -585,7 +537,7 @@
             if (isCorrect) {
                 resDiv.innerHTML = `<span class='correct'>정답입니다! 🎉</span><br><span class='meaning-text'>(${meaning})</span>`;
                 if (isRetryMode) wrongList.splice(currentIdx, 1);
-                setTimeout(() => nextProblem(true), 2000); // 집중모드 유지 위해 skipUpdate=true
+                setTimeout(() => nextProblem(true), 2000);
             } else {
                 resDiv.innerHTML = `<span class='wrong'>오답! 정답: ${correctAns}</span><br><span class='meaning-text'>(${meaning})</span>`;
                 if (!isRetryMode) {
@@ -614,7 +566,6 @@
 
         document.getElementById("answerInput").addEventListener("keypress", function(e) { if (e.key === "Enter") checkAnswer(); });
 
-        // 렌더링 (체크박스 로직 추가됨)
         function renderStudyBody() {
             const container = document.getElementById('textBody');
             let html = '<h3 style="margin-top:0; color:#333; border-bottom:2px solid #333; padding-bottom:10px;">📚 수행평가 족보</h3>';
@@ -625,8 +576,6 @@
                     <div class="content-box">`;
                 
                 section.lines.forEach(line => {
-                    // 체크박스: quizDb에 실제 존재하는 문제인지 확인 (없으면 비활성화 또는 표시X)
-                    // 여기선 그냥 값 넣고 나중에 필터링함
                     html += `<div class="dialog-row">
                         <div class="text-wrap">
                             <div class="hanzi">
@@ -654,13 +603,12 @@
                 html += `</div></details>`;
             });
 
-            // 참고 박스
             html += `
             <div class="ref-box">
                 <h4>💡 중요 체크 포인트 (참고)</h4>
                 <ul class="ref-list">
-                    <li><span class="highlight-code">Tā hěn shuài!</span><br>여기서 <b>hěn</b>은 해석하지 않습니다.</li>
-                    <li><span class="highlight-code">Jīnnián bā suì.</span><br>문장 끝의 <b>suì(살)</b>는 생략 가능합니다.</li>
+                    <li><span class="highlight-code">Tā hěn shuài!</span><br>여기서 <b>hěn</b>은 해석하지 않습니다. (문법적 요소)</li>
+                    <li><span class="highlight-code">Jīnnián bā suì.</span><br>문장 끝의 <b>suì(살)</b>는 생략 가능합니다. (예: Jīnnián bā.)</li>
                     <li><span class="highlight-code">Tā shàng jǐ niánjí?</span><br>동사 <b>shàng(다니다)</b>은 생략 가능합니다.</li>
                     <li><span class="highlight-code">nu..3 (ü)</span><br>자판 입력 시 <b>nv3</b>로 입력하세요.</li>
                     <li><span class="highlight-code">Chu1zho1ng yi1 nia2nji2</span><br>학년은 줄여서 말할 수 있습니다. (예: <b>Chū yī</b>)</li>
@@ -673,16 +621,12 @@
 
         function toggleBody() {
             const el = document.getElementById('textBody');
-            // 만약 현재 집중모드(99) 상태라면 토글 기능을 막거나, 아니면 그냥 보여줌
-            if (document.getElementById('chapterSelect').value == "99") {
-                // 집중모드에선 항상 보임
-                return;
-            }
+            if (document.getElementById('chapterSelect').value == "99") return;
 
             if (el.style.display === 'none' || el.style.display === '') {
                 renderStudyBody();
                 el.style.display = 'block';
-                el.classList.remove('selection-mode'); // 일반 보기 모드에선 체크박스 숨김
+                el.classList.remove('selection-mode');
                 el.scrollIntoView({ behavior: 'smooth' });
             } else {
                 el.style.display = 'none';
