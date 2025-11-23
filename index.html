@@ -9,11 +9,15 @@
         body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background-color: #f7f9fc; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
         .card { background: white; padding: 40px 30px; border-radius: 20px; box-shadow: 0 12px 24px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 550px; margin-bottom: 20px; position: relative; }
         h2 { color: #2c3e50; margin: 0 0 10px 0; letter-spacing: -1px; }
-        .subtitle { color: #7f8c8d; font-size: 0.95em; margin-bottom: 20px; line-height: 1.6; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .subtitle { color: #7f8c8d; font-size: 0.95em; margin-bottom: 10px; line-height: 1.6; padding-bottom: 15px; }
         
-        /* [기능] 모드 선택 드롭다운 */
-        .mode-select-area { margin-bottom: 20px; }
-        select { padding: 10px; font-size: 16px; border-radius: 8px; border: 2px solid #007bff; color: #333; font-weight: bold; cursor: pointer; outline: none; }
+        /* [기능] 모드 선택 및 카운터 영역 */
+        .control-panel { border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px; }
+        .mode-select-area { margin-bottom: 15px; }
+        select { padding: 8px; font-size: 15px; border-radius: 8px; border: 2px solid #007bff; color: #333; font-weight: bold; cursor: pointer; outline: none; width: 100%; max-width: 300px; }
+
+        /* 카운터 배지 스타일 */
+        .counter-badge { display: inline-block; background-color: #e3f2fd; color: #1565c0; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9em; border: 1px solid #bbdefb; }
 
         #question { font-size: 38px; font-weight: 800; color: #007bff; margin: 20px 0; min-height: 60px; word-break: keep-all; display: flex; align-items: center; justify-content: center; }
         
@@ -30,7 +34,7 @@
         .view-btn { background-color: #34495e; color: white; width: 100%; max-width: 550px; padding: 15px; border-radius: 15px; margin-top: 10px; font-size: 1.1em; border: none; cursor: pointer; }
         #textBody { display: none; width: 95%; max-width: 600px; margin-bottom: 50px; }
         
-        /* [아코디언] 접기/펼치기 디자인 */
+        /* [아코디언] 디자인 */
         details { background: white; margin-bottom: 10px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; }
         summary { padding: 15px; font-weight: bold; cursor: pointer; background-color: #fff; list-style: none; display: flex; justify-content: space-between; align-items: center; }
         
@@ -43,7 +47,6 @@
         details.sub-group summary::after { content: '+ 더보기'; transform: none !important; } 
         details.sub-group[open] > summary::after { content: '- 접기'; transform: none !important; }
 
-        /* 내부 콘텐츠 */
         .content-box { padding: 15px; text-align: left; font-size: 0.95em; line-height: 1.6; }
         .dialog-row { margin-bottom: 12px; border-bottom: 1px dashed #eee; padding-bottom: 8px; }
         .hanzi { font-size: 1.1em; color: #333; font-weight: bold; }
@@ -51,7 +54,7 @@
         .meaning { color: #666; font-size: 0.9em; }
         .sub-item { padding: 8px 12px; border-top: 1px solid #eee; font-size: 0.9em; color: #555; }
 
-        /* [NEW] 참고 박스 스타일 */
+        /* 참고 박스 */
         .ref-box { background-color: #fff3e0; border: 2px solid #ffe0b2; border-radius: 15px; padding: 20px; margin-top: 20px; text-align: left; }
         .ref-box h4 { margin: 0 0 10px 0; color: #e65100; font-size: 1.1em; border-bottom: 1px dashed #e65100; padding-bottom: 5px; }
         .ref-list { list-style: none; padding: 0; margin: 0; font-size: 0.95em; color: #5d4037; }
@@ -59,7 +62,6 @@
         .ref-list li::before { content: '👉'; position: absolute; left: 0; }
         .highlight-code { background-color: rgba(255,255,255,0.6); padding: 2px 5px; border-radius: 4px; font-weight: bold; color: #d84315; font-family: monospace; }
 
-        /* 결과 표시 */
         #result { margin-top: 25px; font-weight: 800; font-size: 18px; min-height: 24px; line-height: 1.5; }
         .correct { color: #27ae60; }
         .wrong { color: #e74c3c; }
@@ -74,14 +76,17 @@
             성조 번호 위치 주의! (예: shua4i, liu4)<br>
         </div>
 
-        <div class="mode-select-area">
-            <select id="chapterSelect" onchange="nextProblem()">
-                <option value="0">🔀 전체 랜덤 (기본)</option>
-                <option value="1">1️⃣ 본문 1 (이름/국적)</option>
-                <option value="2">2️⃣ 본문 2 (친구/외모)</option>
-                <option value="3">3️⃣ 본문 3 (가족/나이)</option>
-                <option value="4">4️⃣ 본문 4 (형제/학년)</option>
-            </select>
+        <div class="control-panel">
+            <div class="mode-select-area">
+                <select id="chapterSelect" onchange="resetAndNext()">
+                    <option value="0">🔀 전체 랜덤 (기본)</option>
+                    <option value="1">1️⃣ 본문 1 (이름/국적)</option>
+                    <option value="2">2️⃣ 본문 2 (친구/외모)</option>
+                    <option value="3">3️⃣ 본문 3 (가족/나이)</option>
+                    <option value="4">4️⃣ 본문 4 (형제/학년)</option>
+                </select>
+            </div>
+            <div class="counter-badge" id="counterDisplay">진행: 0번째</div>
         </div>
         
         <div id="question">Loading...</div>
@@ -98,18 +103,19 @@
 
     <button class="view-btn" onclick="toggleBody()">📖 본문 보기 (참고 포함)</button>
 
-    <div id="textBody">
-        </div>
+    <div id="textBody"></div>
 
     <script>
         // ==========================================
-        // [1] 문제 데이터 (변화 없음)
+        // [1] 문제 데이터 (Quiz DB)
         // ==========================================
         const quizDb = [
             // --- [본문 1] ---
-            { ch: 1, w: 1, hanzi: "你叫什么名字?", answer: "Ni3 jia4o she2nme mi2ngzi?", meaning: "이름이 뭐니?" },
+            // ★ 기본 문제 1.5배 확률 적용
+            { ch: 1, w: 1.5, hanzi: "你叫什么名字?", answer: "Ni3 jia4o she2nme mi2ngzi?", meaning: "이름이 뭐니?" },
             { ch: 1, w: 1, hanzi: "我叫金东民。", answer: "Wo3 jia4o Ji1n Do1ngmi2n.", meaning: "난 김동민이야." },
-            { ch: 1, w: 1, hanzi: "你是哪国人?", answer: "Ni3 shi4 na3 guo2 re2n?", meaning: "어느 나라 사람이니?" },
+            // ★ 기본 문제 1.5배 확률 적용
+            { ch: 1, w: 1.5, hanzi: "你是哪国人?", answer: "Ni3 shi4 na3 guo2 re2n?", meaning: "어느 나라 사람이니?" },
             { ch: 1, w: 1, hanzi: "我是韩国人。", answer: "Wo3 shi4 Ha2nguo2re2n.", meaning: "난 한국인이야." },
             { ch: 1, w: 1, hanzi: "我是中国人。", answer: "Wo3 shi4 Zho1ngguo2re2n.", meaning: "난 중국인이야." },
             { ch: 1, w: 1, hanzi: "我是日本人。", answer: "Wo3 shi4 Ri4be3nre2n.", meaning: "난 일본인이야." },
@@ -144,12 +150,12 @@
             { ch: 4, w: 1, hanzi: "高中一年级。", answer: "Ga1ozho1ng yi1 nia2nji2.", meaning: "고등학교 1학년." },
             { ch: 4, w: 1.2, hanzi: "高中二年级。", answer: "Ga1ozho1ng er4 nia2nji2.", meaning: "고등학교 2학년 (빈출)" },
             { ch: 4, w: 1, hanzi: "他是我弟弟。", answer: "Ta1 shi4 wo3 di4di.", meaning: "그는 내 남동생이야." },
-            { ch: 4, w: 1, hanzi: "他是我哥哥。", answer: "Ta1 shi4 wo3 ge1ge.", meaning: "그는 내 형(오빠)이야." },
-            { ch: 4, w: 1, hanzi: "他是我爸爸。", answer: "Ta1 shi4 wo3 ba4ba.", meaning: "그는 우리 아빠야." }
+            { ch: 4, w: 1, hanzi: "他是我哥哥。", answer: "Ta1 shi4 wo3 ge1ge.", meaning: "그는 내 형(오빠)이야." }
+            // '他是我爸爸。'는 문제에서 삭제됨 (족보에는 있음)
         ];
 
         // ==========================================
-        // [2] 족보 데이터 (확장됨)
+        // [2] 족보 데이터
         // ==========================================
         const studyContents = [
             {
@@ -249,6 +255,13 @@
 
         let currentIdx = 0;
         let currentPool = [];
+        let totalSolved = 0; // 카운터 변수
+
+        // 모드 변경 시 리셋 및 풀 업데이트
+        function resetAndNext() {
+            totalSolved = 0; // 카운터 초기화 (모드 바꿀 때)
+            nextProblem();
+        }
 
         function updatePool() {
             const mode = document.getElementById('chapterSelect').value;
@@ -273,6 +286,15 @@
 
         function nextProblem() {
             updatePool();
+            
+            // 카운터 증가 (문제 로딩 시점)
+            totalSolved++;
+            
+            // 카운터 표시 업데이트 (예: 진행: 5번째 (총 42문제 중))
+            // 전체 랜덤일 땐 전체 개수, 모드일 땐 그 모드 개수 표시
+            let poolSize = currentPool.length;
+            document.getElementById('counterDisplay').innerText = `진행: ${totalSolved}번째 (현재 ${poolSize}문제 중)`;
+
             currentIdx = getWeightedRandomIndex();
             const q = currentPool[currentIdx];
             document.getElementById('question').innerText = q.hanzi;
@@ -328,7 +350,7 @@
                 html += `</div></details>`;
             });
 
-            // [NEW] 참고 박스 추가 (요청하신 내용 반영)
+            // 참고 박스
             html += `
             <div class="ref-box">
                 <h4>💡 중요 체크 포인트 (참고)</h4>
@@ -354,6 +376,8 @@
             }
         }
 
+        // 초기 시작
+        // totalSolved는 nextProblem 안에서 1로 증가됨
         nextProblem();
     </script>
 </body>
