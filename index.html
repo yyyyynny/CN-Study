@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>최고 관리자의 중국어 마스터</title>
+    <style>
+        /* 깔끔하고 집중 잘 되는 디자인 */
+        body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background-color: #f7f9fc; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 40px 30px; border-radius: 20px; box-shadow: 0 12px 24px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 550px; }
+        h2 { color: #2c3e50; margin: 0 0 10px 0; letter-spacing: -1px; }
+        .subtitle { color: #7f8c8d; font-size: 0.95em; margin-bottom: 30px; line-height: 1.6; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        
+        #question { font-size: 38px; font-weight: 800; color: #007bff; margin: 20px 0; min-height: 60px; word-break: keep-all; display: flex; align-items: center; justify-content: center; }
+        
+        input { width: 100%; box-sizing: border-box; padding: 16px; font-size: 18px; border: 2px solid #e1e4e8; border-radius: 12px; outline: none; text-align: center; transition: all 0.3s; background-color: #fafafa; }
+        input:focus { border-color: #007bff; background-color: #fff; box-shadow: 0 0 0 4px rgba(0,123,255,0.1); }
+        
+        .btn-area { margin-top: 25px; display: flex; justify-content: center; gap: 12px; }
+        button { padding: 14px 28px; font-size: 16px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; transition: transform 0.1s; }
+        button:active { transform: scale(0.98); }
+        .check-btn { background-color: #28a745; color: white; flex: 2; }
+        .skip-btn { background-color: #ecf0f1; color: #444; flex: 1; }
+        
+        #result { margin-top: 25px; font-weight: 800; font-size: 18px; height: 24px; }
+        .correct { color: #27ae60; }
+        .wrong { color: #e74c3c; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>🇨🇳 중국어 정밀 연습</h2>
+        <div class="subtitle">
+            성조 번호 위치를 정확히 입력하세요.<br>
+            예: <b>shuài</b> → shua4i (a 뒤), <b>liù</b> → liu4 (u 뒤)
+        </div>
+        
+        <div id="question">Loading...</div>
+        
+        <input type="text" id="answerInput" placeholder="예: Ji1n, Do1ng" autocomplete="off">
+        
+        <div id="result"></div>
+
+        <div class="btn-area">
+            <button class="check-btn" onclick="checkAnswer()">확인 (Enter)</button>
+            <button class="skip-btn" onclick="nextProblem()">건너뛰기</button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // [데이터] 가중치(weight) 시스템 적용
+        // weight: 1.0 (기본) / 1.2 (약간 더 자주 나옴)
+        // ==========================================
+        const db = [
+            // [1. 국적] -------------------------------------
+            { w: 1, hanzi: "你是哪国人?", answer: "Ni3 shi4 na3 guo2 re2n?" },
+            { w: 1, hanzi: "我是韩国人。", answer: "Wo3 shi4 Ha2nguo2re2n." },
+            { w: 1, hanzi: "我是中国人。", answer: "Wo3 shi4 Zho1ngguo2re2n." },
+            { w: 1, hanzi: "我是日本人。", answer: "Wo3 shi4 Ri4be3nre2n." },
+            { w: 1, hanzi: "我是意大利人。", answer: "Wo3 shi4 Yi4da4li4re2n." },
+
+            { w: 1, hanzi: "他是美国人吗?", answer: "Ta1 shi4 Me3iguo2re2n ma?" },
+            { w: 1, hanzi: "他是中国人吗?", answer: "Ta1 shi4 Zho1ngguo2re2n ma?" },
+            { w: 1, hanzi: "他是日本人吗?", answer: "Ta1 shi4 Ri4be3nre2n ma?" },
+            { w: 1, hanzi: "不是,他是加拿大人。", answer: "Bu2 shi4, ta1 shi4 Jia1na2da4re2n." },
+
+            // [2. 가족] -------------------------------------
+            { w: 1, hanzi: "她是谁?", answer: "Ta1 shi4 she2i?" },
+            { w: 1, hanzi: "她是我妹妹。", answer: "Ta1 shi4 wo3 me4imei." }, // 여동생
+            { w: 1, hanzi: "她是我姐姐。", answer: "Ta1 shi4 wo3 jie3jie." }, // 누나/언니
+            { w: 1, hanzi: "她是我妈妈。", answer: "Ta1 shi4 wo3 ma1ma." },   // 엄마
+            
+            { w: 1, hanzi: "他是谁?", answer: "Ta1 shi4 she2i?" },
+            { w: 1, hanzi: "他是我弟弟。", answer: "Ta1 shi4 wo3 di4di." },   // 남동생
+            { w: 1, hanzi: "他是我哥哥。", answer: "Ta1 shi4 wo3 ge1ge." },   // 형/오빠
+            { w: 1, hanzi: "他是我爸爸。", answer: "Ta1 shi4 wo3 ba4ba." },   // 아빠
+
+            { w: 1, hanzi: "你有哥哥吗?", answer: "Ni3 yo3u ge1ge ma?" },
+            { w: 1, hanzi: "有,这是我哥哥。", answer: "Yo3u, zhe4 shi4 wo3 ge1ge." },
+
+            // [3. 학년] -------------------------------------
+            { w: 1, hanzi: "他上几年级?", answer: "Ta1 sha4ng ji3 nia2nji2?" },
+            
+            { w: 1, hanzi: "小学六年级。", answer: "Xia3oxue2 liu4 nia2nji2." },  // 초6
+            { w: 1, hanzi: "初中一年级。", answer: "Chu1zho1ng yi1 nia2nji2." },  // 중1
+            { w: 1, hanzi: "初中二年级。", answer: "Chu1zho1ng er4 nia2nji2." },  // 중2
+            { w: 1, hanzi: "初中三年级。", answer: "Chu1zho1ng sa1n nia2nji2." }, // 중3
+            { w: 1, hanzi: "高中一年级。", answer: "Ga1ozho1ng yi1 nia2nji2." },  // 고1
+
+            // ★ [핵심] 고등학교 2학년 (가중치 1.2배 적용) ★
+            { w: 1.2, hanzi: "高中二年级。", answer: "Ga1ozho1ng er4 nia2nji2." }, 
+
+            // [4. 기타] -------------------------------------
+            { w: 1, hanzi: "你叫什么名字?", answer: "Ni3 jia4o she2nme mi2ngzi?" },
+            { w: 1, hanzi: "我叫金东民。", answer: "Wo3 jia4o Ji1n Do1ngmi2n." },
+            { w: 1, hanzi: "他很帅!", answer: "Ta1 he3n shua4i!" },
+            { w: 1, hanzi: "他是我的朋友。", answer: "Ta1 shi4 wo3 de pe2ngyou." },
+            { w: 1, hanzi: "她很像你!", answer: "Ta1 he3n xia4ng ni3!" },
+            { w: 1, hanzi: "她几岁?", answer: "Ta1 ji3 sui4?" },
+            { w: 1, hanzi: "今年八岁。", answer: "Ji1nnia2n ba1 sui4." }
+        ];
+
+        let currentIdx = 0;
+
+        // [확률 로직] 가중치 기반 랜덤 선택 함수
+        function getWeightedRandomIndex() {
+            let totalWeight = 0;
+            for (let i = 0; i < db.length; i++) {
+                totalWeight += db[i].w;
+            }
+
+            let randomNum = Math.random() * totalWeight;
+            
+            for (let i = 0; i < db.length; i++) {
+                randomNum -= db[i].w;
+                if (randomNum <= 0) {
+                    return i;
+                }
+            }
+            return 0; // fallback
+        }
+
+        function nextProblem() {
+            currentIdx = getWeightedRandomIndex();
+            
+            document.getElementById('question').innerText = db[currentIdx].hanzi;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('result').innerText = '';
+            document.getElementById('answerInput').focus();
+        }
+
+        function checkAnswer() {
+            const userAns = document.getElementById('answerInput').value.trim();
+            const correctAns = db[currentIdx].answer;
+
+            // 정답 체크: 대소문자/공백 유연성 + 엄격한 철자 비교
+            const cleanUser = userAns.toLowerCase().replace(/\s+/g, ' ');
+            const cleanCorrect = correctAns.toLowerCase().replace(/\s+/g, ' ');
+
+            const resDiv = document.getElementById('result');
+
+            if (cleanUser === cleanCorrect) {
+                resDiv.innerHTML = "<span class='correct'>정답입니다! 🎉</span>";
+                // 1초 후 자동 넘어감
+                setTimeout(nextProblem, 1000); 
+            } else {
+                resDiv.innerHTML = `<span class='wrong'>오답! 정답: ${correctAns}</span>`;
+            }
+        }
+
+        // 엔터키 지원
+        document.getElementById("answerInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                checkAnswer();
+            }
+        });
+
+        // 시작
+        nextProblem();
+    </script>
+</body>
+</html>
