@@ -17,9 +17,9 @@
         .control-panel { border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px; }
         .mode-select-area { margin-bottom: 15px; }
         select { padding: 8px; font-size: 15px; border-radius: 8px; border: 2px solid #007bff; color: #333; font-weight: bold; cursor: pointer; outline: none; width: 100%; max-width: 300px; }
-        /* 옵션 색상 구분 */
         option.basic-option { background-color: #e3f2fd; color: #1565c0; font-weight: bold; }
         option.advanced-option { background-color: #e8f5e9; color: #2e7d32; font-weight: bold; }
+        option.target-option { background-color: #fff3e0; color: #e65100; font-weight: bold; }
 
         /* 배지 스타일 */
         .badge-container { display: flex; justify-content: center; gap: 10px; font-size: 0.9em; font-weight: bold; }
@@ -49,33 +49,18 @@
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
         }
 
-        /* [워터마크 수정됨] - 최고 관리자님 설정 반영 */
+        /* [워터마크] */
         .watermark {
-            position: fixed;
-            bottom: 15px;
-            right: 20px;
-            font-size: 14px;
-            color: #888;
+            position: fixed; bottom: 15px; right: 20px; font-size: 14px; color: #888;
             font-family: 'Segoe Print', 'Chalkboard SE', 'Comic Sans MS', sans-serif;
-            opacity: 0.9; 
-            cursor: pointer; 
-            z-index: 9999;
-            user-select: none;
+            opacity: 0.9; cursor: pointer; z-index: 9999; user-select: none;
             transition: opacity 0.3s, transform 0.2s;
         }
         .watermark:hover { opacity: 0.8; transform: scale(1.05); }
         .watermark:active { transform: scale(0.95); }
+        .firework-particle { position: fixed; width: 6px; height: 6px; border-radius: 60%; pointer-events: none; z-index: 10000; }
 
-        /* 폭죽 입자 스타일 */
-        .firework-particle {
-            position: fixed;
-            width: 6px; height: 6px;
-            border-radius: 60%;
-            pointer-events: none;
-            z-index: 10000;
-        }
-
-        /* 오답/개발자 모드 UI */
+        /* 테마 스타일 */
         body.retry-mode { background-color: #ffebee; }
         .card.retry-mode-card { border: 3px solid #ef5350; box-shadow: 0 0 20px rgba(244, 67, 54, 0.3); }
         body.dev-mode { background-color: #222; }
@@ -83,9 +68,9 @@
         .dev-mode-card h2, .dev-mode-card .subtitle, .dev-mode-card #question { color: #0f0; text-shadow: 0 0 5px #0f0; }
         .dev-mode-card input { background-color: #000; color: #0f0; border-color: #0f0; }
 
-        /* 본문 보기 */
+        /* 본문 보기 & 집중학습 선택창 */
         .view-btn { background-color: #34495e; color: white; width: 100%; max-width: 550px; padding: 15px; border-radius: 15px; margin-top: 10px; font-size: 1.1em; border: none; cursor: pointer; }
-        #textBody { display: none; width: 95%; max-width: 600px; margin-bottom: 50px; z-index: 20; }
+        #textBody, #intensiveSetup { display: none; width: 95%; max-width: 600px; margin-bottom: 50px; z-index: 20; }
         
         details { background: white; margin-bottom: 10px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; }
         summary { padding: 15px; font-weight: bold; cursor: pointer; background-color: #fff; list-style: none; display: flex; justify-content: space-between; align-items: center; }
@@ -97,11 +82,17 @@
         details.sub-group[open] > summary::after { content: '- 접기'; transform: none !important; }
 
         .content-box { padding: 15px; text-align: left; font-size: 0.95em; line-height: 1.6; }
-        .dialog-row { margin-bottom: 12px; border-bottom: 1px dashed #eee; padding-bottom: 8px; }
+        .dialog-row { margin-bottom: 12px; border-bottom: 1px dashed #eee; padding-bottom: 8px; display: flex; align-items: center; }
+        .text-wrap { flex: 1; }
         .hanzi { font-size: 1.1em; color: #333; font-weight: bold; }
         .pinyin { color: #e67e22; font-weight: bold; display: block; }
         .meaning { color: #666; font-size: 0.9em; }
-        .sub-item { padding: 8px 12px; border-top: 1px solid #eee; font-size: 0.9em; color: #555; }
+        
+        /* 체크박스 스타일 (집중학습용) */
+        .select-check { width: 20px; height: 20px; margin-right: 15px; cursor: pointer; display: none; } 
+        .selection-mode .select-check { display: block; }
+
+        .sub-item { padding: 8px 12px; border-top: 1px solid #eee; font-size: 0.9em; color: #555; display: flex; align-items: center; }
 
         .ref-box { background-color: #fff3e0; border: 2px solid #ffe0b2; border-radius: 15px; padding: 20px; margin-top: 20px; text-align: left; }
         .ref-box h4 { margin: 0 0 10px 0; color: #e65100; font-size: 1.1em; border-bottom: 1px dashed #e65100; padding-bottom: 5px; }
@@ -114,6 +105,10 @@
         .correct { color: #27ae60; }
         .wrong { color: #e74c3c; }
         .meaning-text { display: block; font-size: 0.9em; color: #555; margin-top: 5px; font-weight: normal; }
+
+        /* 집중학습 시작 버튼 */
+        .start-intensive-btn { background-color: #e65100; color: white; width: 100%; padding: 15px; font-size: 1.2em; border: none; border-radius: 15px; margin-top: 15px; font-weight: bold; cursor: pointer; display: none; }
+        .start-intensive-btn:hover { background-color: #bf360c; }
     </style>
 </head>
 <body>
@@ -128,10 +123,11 @@
 
         <div class="control-panel">
             <div class="mode-select-area">
-                <select id="chapterSelect" onchange="resetAndNext()">
+                <select id="chapterSelect" onchange="handleModeChange()">
                     <option value="0">🔀 전체 랜덤 (기본+응용)</option>
                     <option value="6" class="basic-option">📚 기본 모드 (응용 제외)</option>
                     <option value="5" class="advanced-option">🧪 응용 모드 (변형 문제만)</option>
+                    <option value="99" class="target-option">🎯 집중 공략 (직접 선택)</option>
                     <option disabled>──────────</option>
                     <option value="1">1️⃣ 본문 1 (이름/국적)</option>
                     <option value="2">2️⃣ 본문 2 (친구/외모)</option>
@@ -161,56 +157,58 @@
         </div>
     </div>
 
-    <button class="view-btn" onclick="toggleBody()">📖 본문 보기 (참고 포함)</button>
+    <button class="view-btn" id="viewBtn" onclick="toggleBody()">📖 본문 보기 (참고 포함)</button>
 
-    <div id="textBody"></div>
+    <div id="textBody">
+        </div>
+    <button class="start-intensive-btn" id="startIntensiveBtn" onclick="startIntensiveQuiz()">🎯 선택한 문제로 시작하기</button>
 
     <script>
         // ==========================================
-        // [0] 이스터에그: 폭죽 효과
+        // [0] 이스터에그
         // ==========================================
         function triggerFireworks(e) {
             const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500'];
             const particleCount = 30;
-            const x = e.clientX;
-            const y = e.clientY;
-
+            const x = e.clientX; const y = e.clientY;
             for (let i = 0; i < particleCount; i++) {
                 const particle = document.createElement('div');
                 particle.classList.add('firework-particle');
                 document.body.appendChild(particle);
-
                 const color = colors[Math.floor(Math.random() * colors.length)];
                 particle.style.backgroundColor = color;
-                particle.style.left = x + 'px';
-                particle.style.top = y + 'px';
-
+                particle.style.left = x + 'px'; particle.style.top = y + 'px';
                 const angle = Math.random() * Math.PI * 2;
                 const velocity = 50 + Math.random() * 100; 
-                const tx = Math.cos(angle) * velocity;
-                const ty = Math.sin(angle) * velocity;
-
+                const tx = Math.cos(angle) * velocity; const ty = Math.sin(angle) * velocity;
                 particle.animate([
                     { transform: 'translate(0, 0) scale(1)', opacity: 1 },
                     { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
-                ], {
-                    duration: 800 + Math.random() * 400,
-                    easing: 'cubic-bezier(0, .9, .57, 1)'
-                }).onfinish = () => particle.remove(); 
+                ], { duration: 800 + Math.random() * 400, easing: 'cubic-bezier(0, .9, .57, 1)' }).onfinish = () => particle.remove(); 
             }
         }
 
         // ==========================================
-        // [1] TTS
+        // [1] TTS (고성능)
         // ==========================================
         function speak(text) {
-            if (!window.speechSynthesis) return;
+            if (!window.speechSynthesis) { alert("TTS 미지원 브라우저"); return; }
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'zh-CN';
-            utterance.rate = 0.8; 
+            
+            // 고성능 목소리(Google/Microsoft) 우선 선택
+            const voices = window.speechSynthesis.getVoices();
+            const targetVoice = voices.find(v => 
+                v.lang.includes('zh') && (v.name.includes('Google') || v.name.includes('Microsoft'))
+            );
+            if (targetVoice) { utterance.voice = targetVoice; }
+            else { utterance.lang = 'zh-CN'; }
+
+            utterance.rate = 0.85; 
             window.speechSynthesis.speak(utterance);
         }
+        // 크롬 음성 로드 버그 방지
+        window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 
         function speakCurrentQuestion() {
             const text = document.getElementById('question').innerText;
@@ -221,7 +219,7 @@
         // [2] 문제 데이터 (Quiz DB)
         // ==========================================
         const quizDb = [
-            // --- [본문 1] ---
+            // 본문 1
             { ch: 1, w: 1.5, isVar: false, hanzi: "你叫什么名字?", answer: "Ni3 jia4o she2nme mi2ngzi?", meaning: "이름이 뭐니?" },
             { ch: 1, w: 1, isVar: false, hanzi: "我叫金东民。", answer: "Wo3 jia4o Ji1n Do1ngmi2n.", meaning: "난 김동민이야." },
             { ch: 1, w: 1.5, isVar: false, hanzi: "你是哪国人?", answer: "Ni3 shi4 na3 guo2 re2n?", meaning: "어느 나라 사람이니?" },
@@ -229,14 +227,12 @@
             { ch: 1, w: 1, isVar: true, hanzi: "我是中国人。", answer: "Wo3 shi4 Zho1ngguo2re2n.", meaning: "난 중국인이야. (응용)" },
             { ch: 1, w: 1, isVar: true, hanzi: "我是日本人。", answer: "Wo3 shi4 Ri4be3nre2n.", meaning: "난 일본인이야. (응용)" },
             { ch: 1, w: 1, isVar: true, hanzi: "我是意大利人。", answer: "Wo3 shi4 Yi4da4li4re2n.", meaning: "난 이탈리아인이야. (응용)" },
-
-            // --- [본문 2] ---
+            // 본문 2
             { ch: 2, w: 1, isVar: false, hanzi: "他很帅!", answer: "Ta1 he3n shua4i!", meaning: "그는 잘생겼어!" },
             { ch: 2, w: 1, isVar: false, hanzi: "他是我的朋友。", answer: "Ta1 shi4 wo3 de pe2ngyou.", meaning: "그는 내 친구야." },
             { ch: 2, w: 1, isVar: false, hanzi: "他是美国人吗?", answer: "Ta1 shi4 Me3iguo2re2n ma?", meaning: "그는 미국인이니?" },
             { ch: 2, w: 1, isVar: false, hanzi: "不是,他是加拿大人。", answer: "Bu2 shi4, ta1 shi4 Jia1na2da4re2n.", meaning: "아니, 그는 캐나다인이야." },
-
-            // --- [본문 3] ---
+            // 본문 3
             { ch: 3, w: 1, isVar: false, hanzi: "她是谁?", answer: "Ta1 shi4 she2i?", meaning: "그녀는 누구니?" },
             { ch: 3, w: 1, isVar: false, hanzi: "她是我妹妹。", answer: "Ta1 shi4 wo3 me4imei.", meaning: "그녀는 내 여동생이야." },
             { ch: 3, w: 1, isVar: true, hanzi: "他是谁?", answer: "Ta1 shi4 she2i?", meaning: "그는 누구니? (응용)" },
@@ -253,8 +249,7 @@
             { ch: 3, w: 1, isVar: true, hanzi: "十六岁。", answer: "Shi2liu4 sui4.", meaning: "16살 (응용)" },
             { ch: 3, w: 1, isVar: true, hanzi: "十七岁。", answer: "Shi2qi1 sui4.", meaning: "17살 (응용)" },
             { ch: 3, w: 1, isVar: true, hanzi: "十八岁。", answer: "Shi2ba1 sui4.", meaning: "18살 (응용)" },
-
-            // --- [본문 4] ---
+            // 본문 4
             { ch: 4, w: 1, isVar: false, hanzi: "你有哥哥吗?", answer: "Ni3 yo3u ge1ge ma?", meaning: "너 형(오빠) 있니?" },
             { ch: 4, w: 1, isVar: false, hanzi: "有,这是我哥哥。", answer: "Yo3u, zhe4 shi4 wo3 ge1ge.", meaning: "있어, 이 사람은 우리 형(오빠)이야." },
             { ch: 4, w: 1, isVar: true, hanzi: "我有两个哥哥。", answer: "Wo3 yo3u lia3ng ge ge1ge.", meaning: "난 형(오빠)이 두 명 있어. (응용)" },
@@ -388,6 +383,7 @@
         let qKeyCount = 0;
         let qKeyTimer = null;
 
+        // 치트키
         document.addEventListener('keydown', function(event) {
             if (event.key.toLowerCase() === 'q') {
                 qKeyCount++;
@@ -409,12 +405,46 @@
             }
         });
 
+        // 모드 변경 처리
+        function handleModeChange() {
+            const mode = document.getElementById('chapterSelect').value;
+            
+            // [99] 집중 공략 모드인 경우
+            if (mode == "99") {
+                // 1. 카드 숨기기, 2. 텍스트바디(족보) 보이기, 3. 체크박스 모드 활성화
+                document.getElementById('mainCard').style.display = 'none';
+                document.getElementById('viewBtn').style.display = 'none'; // 버튼 숨김
+                
+                const textBody = document.getElementById('textBody');
+                textBody.style.display = 'block';
+                textBody.classList.add('selection-mode'); // 체크박스 보이게 하는 클래스 추가
+                
+                // 렌더링 및 시작 버튼 표시
+                renderStudyBody();
+                document.getElementById('startIntensiveBtn').style.display = 'block';
+                
+                alert("🎯 [집중 공략 모드]\n원하는 문장을 체크한 뒤, 맨 아래 '시작하기'를 누르세요!");
+            } 
+            else {
+                // 일반 모드
+                resetAndNext();
+            }
+        }
+
         function resetAndNext() {
             currentStep = 0;
             cycleCount = 1;
             wrongList = [];
             isRetryMode = false;
             
+            // UI 초기화
+            document.getElementById('mainCard').style.display = 'block';
+            document.getElementById('viewBtn').style.display = 'block';
+            
+            document.getElementById('textBody').style.display = 'none';
+            document.getElementById('textBody').classList.remove('selection-mode');
+            document.getElementById('startIntensiveBtn').style.display = 'none';
+
             document.body.classList.remove('retry-mode');
             document.getElementById('mainCard').classList.remove('retry-mode-card');
             document.getElementById('retryBtn').style.display = 'none';
@@ -431,13 +461,51 @@
             if (mode == "0") {
                 currentPool = quizDb;
             } else if (mode == "6") {
-                // [NEW] 기본 모드 (isVar === false)
                 currentPool = quizDb.filter(item => item.isVar === false);
             } else if (mode == "5") {
                 currentPool = quizDb.filter(item => item.isVar === true);
+            } else if (mode == "99") {
+                // 집중 모드는 별도 함수(startIntensiveQuiz)에서 처리함. 여기선 패스.
+                return; 
             } else {
                 currentPool = quizDb.filter(item => item.ch == mode);
             }
+        }
+
+        // [집중 학습 시작 로직]
+        function startIntensiveQuiz() {
+            // 1. 체크된 항목 수집
+            const checkboxes = document.querySelectorAll('.select-check:checked');
+            if (checkboxes.length === 0) {
+                alert("선택된 문장이 없습니다! 최소 1개 이상 선택해주세요.");
+                return;
+            }
+
+            const selectedHanzi = Array.from(checkboxes).map(cb => cb.value);
+            
+            // 2. 퀴즈 DB에서 매칭되는 문제 찾기
+            // (주의: 족보에는 있는데 퀴즈DB엔 없는 문제(아빠 등)는 제외됨)
+            const newPool = quizDb.filter(item => selectedHanzi.includes(item.hanzi));
+            
+            if (newPool.length === 0) {
+                alert("선택하신 문장 중 퀴즈 데이터가 있는 문제가 없습니다.");
+                return;
+            }
+
+            // 3. 풀 설정 및 UI 전환
+            currentPool = newPool;
+            currentStep = 0;
+            cycleCount = 1;
+            wrongList = [];
+            
+            // 화면 전환
+            document.getElementById('textBody').style.display = 'none';
+            document.getElementById('startIntensiveBtn').style.display = 'none';
+            document.getElementById('mainCard').style.display = 'block';
+            document.getElementById('viewBtn').style.display = 'block';
+            
+            // 다음 문제 진행
+            nextProblem(true); // true = 풀 업데이트 스킵 (이미 수동 설정했으므로)
         }
 
         function getWeightedRandomIndex() {
@@ -455,7 +523,7 @@
             return 0;
         }
 
-        function nextProblem() {
+        function nextProblem(skipUpdate = false) {
             if (isRetryMode && wrongList.length === 0) {
                 alert("🎉 복습 완료! 원래 모드로 돌아갑니다.");
                 isRetryMode = false;
@@ -464,13 +532,17 @@
                 document.getElementById('retryBtn').style.display = 'none';
                 document.getElementById('mainTitle').innerText = "🇨🇳 짱 라오쉬 수행 연습";
                 document.getElementById('chapterSelect').disabled = false;
-                updatePool();
+                
+                // 집중모드였다면 다시 선택화면으로 가는게 아니라 그냥 유지
+                if (document.getElementById('chapterSelect').value != "99") {
+                    updatePool();
+                }
             }
 
-            if (!isRetryMode) updatePool();
+            if (!isRetryMode && !skipUpdate) updatePool();
 
             if (currentPool.length === 0 && !isRetryMode) {
-                alert("해당 조건의 문제가 없습니다.");
+                // 집중모드에서 선택 안하고 넘어온 경우 등 예외
                 return;
             }
             
@@ -513,7 +585,7 @@
             if (isCorrect) {
                 resDiv.innerHTML = `<span class='correct'>정답입니다! 🎉</span><br><span class='meaning-text'>(${meaning})</span>`;
                 if (isRetryMode) wrongList.splice(currentIdx, 1);
-                setTimeout(nextProblem, 2000);
+                setTimeout(() => nextProblem(true), 2000); // 집중모드 유지 위해 skipUpdate=true
             } else {
                 resDiv.innerHTML = `<span class='wrong'>오답! 정답: ${correctAns}</span><br><span class='meaning-text'>(${meaning})</span>`;
                 if (!isRetryMode) {
@@ -529,22 +601,20 @@
         }
         
         function startRetryMode() {
-            if (wrongList.length === 0) {
-                alert("틀린 문제가 없습니다!");
-                return;
-            }
+            if (wrongList.length === 0) { alert("틀린 문제가 없습니다!"); return; }
             if (confirm(`틀린 문제 ${wrongList.length}개를 집중 복습하시겠습니까?`)) {
                 isRetryMode = true;
                 document.body.classList.add('retry-mode');
                 document.getElementById('mainCard').classList.add('retry-mode-card');
                 document.getElementById('mainTitle').innerText = "🔥 지옥의 오답 특훈 🔥";
                 document.getElementById('chapterSelect').disabled = true;
-                nextProblem();
+                nextProblem(true);
             }
         }
 
         document.getElementById("answerInput").addEventListener("keypress", function(e) { if (e.key === "Enter") checkAnswer(); });
 
+        // 렌더링 (체크박스 로직 추가됨)
         function renderStudyBody() {
             const container = document.getElementById('textBody');
             let html = '<h3 style="margin-top:0; color:#333; border-bottom:2px solid #333; padding-bottom:10px;">📚 수행평가 족보</h3>';
@@ -555,18 +625,24 @@
                     <div class="content-box">`;
                 
                 section.lines.forEach(line => {
+                    // 체크박스: quizDb에 실제 존재하는 문제인지 확인 (없으면 비활성화 또는 표시X)
+                    // 여기선 그냥 값 넣고 나중에 필터링함
                     html += `<div class="dialog-row">
-                        <div class="hanzi">
-                            ${line.h}
-                            <button class="tts-btn tts-btn-small" onclick="speak('${line.h}')">🔊</button>
-                        </div>
-                        <div class="pinyin">${line.p}</div>
-                        <div class="meaning">${line.m}</div>`;
+                        <div class="text-wrap">
+                            <div class="hanzi">
+                                <input type="checkbox" class="select-check" value="${line.h}">
+                                ${line.h}
+                                <button class="tts-btn tts-btn-small" onclick="speak('${line.h}')">🔊</button>
+                            </div>
+                            <div class="pinyin">${line.p}</div>
+                            <div class="meaning">${line.m}</div>
+                        </div>`;
                     
                     if (line.subs) {
                         html += `<details class="sub-group"><summary>${line.h.split('。')[0]} (응용 표현)</summary>`;
                         line.subs.forEach(sub => {
                             html += `<div class="sub-item">
+                                <input type="checkbox" class="select-check" value="${sub.h}">
                                 <b>${sub.h}</b> <button class="tts-btn tts-btn-small" onclick="speak('${sub.h}')">🔊</button>
                                 : ${sub.m}
                             </div>`;
@@ -578,12 +654,13 @@
                 html += `</div></details>`;
             });
 
+            // 참고 박스
             html += `
             <div class="ref-box">
                 <h4>💡 중요 체크 포인트 (참고)</h4>
                 <ul class="ref-list">
-                    <li><span class="highlight-code">Tā hěn shuài!</span><br>여기서 <b>hěn</b>은 해석하지 않습니다. (문법적 요소)</li>
-                    <li><span class="highlight-code">Jīnnián bā suì.</span><br>문장 끝의 <b>suì(살)</b>는 생략 가능합니다. (예: Jīnnián bā.)</li>
+                    <li><span class="highlight-code">Tā hěn shuài!</span><br>여기서 <b>hěn</b>은 해석하지 않습니다.</li>
+                    <li><span class="highlight-code">Jīnnián bā suì.</span><br>문장 끝의 <b>suì(살)</b>는 생략 가능합니다.</li>
                     <li><span class="highlight-code">Tā shàng jǐ niánjí?</span><br>동사 <b>shàng(다니다)</b>은 생략 가능합니다.</li>
                     <li><span class="highlight-code">nu..3 (ü)</span><br>자판 입력 시 <b>nv3</b>로 입력하세요.</li>
                     <li><span class="highlight-code">Chu1zho1ng yi1 nia2nji2</span><br>학년은 줄여서 말할 수 있습니다. (예: <b>Chū yī</b>)</li>
@@ -596,9 +673,16 @@
 
         function toggleBody() {
             const el = document.getElementById('textBody');
+            // 만약 현재 집중모드(99) 상태라면 토글 기능을 막거나, 아니면 그냥 보여줌
+            if (document.getElementById('chapterSelect').value == "99") {
+                // 집중모드에선 항상 보임
+                return;
+            }
+
             if (el.style.display === 'none' || el.style.display === '') {
                 renderStudyBody();
                 el.style.display = 'block';
+                el.classList.remove('selection-mode'); // 일반 보기 모드에선 체크박스 숨김
                 el.scrollIntoView({ behavior: 'smooth' });
             } else {
                 el.style.display = 'none';
