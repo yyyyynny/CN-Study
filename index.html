@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>짱 라오쉬 수행 연습 (Smart TTS)</title>
+    <title>짱 라오쉬 수행 연습</title>
     <style>
         /* [디자인] 기본 설정 */
-        html { overflow-y: scroll; }
+        html { overflow-y: scroll; } /* 스크롤 밀림 방지 */
         
         body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background-color: #f7f9fc; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; transition: 0.3s; overflow-x: hidden; }
         .card { background: white; padding: 40px 30px; border-radius: 20px; box-shadow: 0 12px 24px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 550px; margin-bottom: 20px; position: relative; transition: 0.3s; z-index: 10; }
@@ -26,12 +26,12 @@
         .counter-badge { background-color: #e3f2fd; color: #1565c0; padding: 6px 15px; border-radius: 20px; border: 1px solid #bbdefb; min-width: 120px; }
         .wrong-badge { background-color: #ffebee; color: #c62828; padding: 6px 15px; border-radius: 20px; border: 1px solid #ffcdd2; }
 
-        /* 문제 영역 */
+        /* 문제 영역 및 TTS */
         #question-area { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 20px 0; min-height: 60px; }
-        #question { font-size: 38px; font-weight: 800; color: #007bff; word-break: keep-all; transition: color 0.2s; }
+        #question { font-size: 38px; font-weight: 800; color: #007bff; word-break: keep-all; transition: color 0.2s, text-shadow 0.2s; }
         
         /* ★ TTS 상태별 색상 (핵심) ★ */
-        .speaking-hq { color: #007bff !important; text-shadow: 0 0 8px rgba(0, 123, 255, 0.4); transform: scale(1.05); transition: 0.2s; } /* 고음질(파랑) */
+        .speaking-hq { color: #007bff !important; text-shadow: 0 0 10px rgba(0, 123, 255, 0.5); transform: scale(1.05); transition: 0.2s; } /* 고음질(파랑) */
         .speaking-std { color: #ff6f00 !important; text-shadow: 0 0 5px rgba(255, 167, 38, 0.3); transform: scale(1.02); transition: 0.2s; } /* 일반(주황) */
 
         .tts-btn { background: none; border: none; cursor: pointer; font-size: 1.5em; padding: 5px; transition: transform 0.1s; display: inline-flex; align-items: center; justify-content: center; }
@@ -54,7 +54,7 @@
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
         }
 
-        /* 워터마크 (사용자 설정) */
+        /* 워터마크 (사용자 커스텀: 진하게) */
         .watermark {
             position: fixed; bottom: 15px; right: 20px; font-size: 14px; color: #888;
             font-family: 'Segoe Print', 'Chalkboard SE', 'Comic Sans MS', sans-serif;
@@ -63,9 +63,10 @@
         }
         .watermark:hover { opacity: 0.8; transform: scale(1.05); }
         .watermark:active { transform: scale(0.95); }
+        /* 폭죽 입자 (60%) */
         .firework-particle { position: fixed; width: 6px; height: 6px; border-radius: 60%; pointer-events: none; z-index: 10000; }
 
-        /* 테마 */
+        /* 테마 스타일 */
         body.retry-mode { background-color: #ffebee; }
         .card.retry-mode-card { border: 3px solid #ef5350; box-shadow: 0 0 20px rgba(244, 67, 54, 0.3); }
         body.dev-mode { background-color: #222; }
@@ -89,7 +90,7 @@
         .content-box { padding: 15px; text-align: left; font-size: 0.95em; line-height: 1.6; }
         .dialog-row { margin-bottom: 12px; border-bottom: 1px dashed #eee; padding-bottom: 8px; display: flex; align-items: center; }
         .text-wrap { flex: 1; }
-        .hanzi { font-size: 1.1em; color: #333; font-weight: bold; transition: color 0.2s, transform 0.2s; } /* 애니메이션 */
+        .hanzi { font-size: 1.1em; color: #333; font-weight: bold; transition: color 0.2s, transform 0.2s; }
         .pinyin { color: #e67e22; font-weight: bold; display: block; }
         .meaning { color: #666; font-size: 0.9em; }
         
@@ -191,14 +192,14 @@
         }
 
         // ==========================================
-        // [1] TTS (스마트 하이라이트)
+        // [1] TTS (3단 방어 + 색상 알림)
         // ==========================================
         let currentHighlightEl = null;
 
         function speak(text, elementIdOrObj) {
             if (!window.speechSynthesis) { alert("TTS 미지원 브라우저"); return; }
             
-            window.speechSynthesis.cancel(); // 초기화
+            window.speechSynthesis.cancel(); 
             if (currentHighlightEl) {
                 currentHighlightEl.classList.remove('speaking-hq', 'speaking-std');
                 currentHighlightEl = null;
@@ -214,26 +215,26 @@
 
             const voices = window.speechSynthesis.getVoices();
             
-            // 1. 고음질 우선 찾기
+            // 1순위: 고음질
             let targetVoice = voices.find(v => v.lang.includes('zh') && (v.name.includes('Google') || v.name.includes('Microsoft')));
             let isHQ = false;
 
             if (targetVoice) {
                 utterance.voice = targetVoice;
-                isHQ = true; // 고음질 모드 활성화
+                isHQ = true;
             } else {
-                // 2. 없으면 일반
+                // 2순위: 일반
                 targetVoice = voices.find(v => v.lang.includes('zh'));
                 if (targetVoice) utterance.voice = targetVoice;
             }
 
-            // 4. 아예 없으면 경고
+            // 3순위: 아예 없음 (경고)
             if (voices.length > 0 && !targetVoice) {
                 alert("🚨 오류: 기기에 '중국어 음성 데이터'가 없습니다!\n설정에서 다운로드해주세요.");
                 return;
             }
 
-            // [핵심] 재생 시작 시 색상 변경 (파랑 or 주황)
+            // 색상 변경 이벤트
             utterance.onstart = function() {
                 if (targetEl) {
                     if (isHQ) targetEl.classList.add('speaking-hq'); // 파랑
@@ -243,12 +244,11 @@
             };
 
             utterance.onend = function() {
-                if (targetEl) {
-                    targetEl.classList.remove('speaking-hq', 'speaking-std');
-                }
+                if (targetEl) targetEl.classList.remove('speaking-hq', 'speaking-std');
                 currentHighlightEl = null;
             };
 
+            // 안드로이드 버그 방지
             setTimeout(() => {
                 window.speechSynthesis.speak(utterance);
             }, 10);
@@ -261,7 +261,7 @@
         }
 
         // ==========================================
-        // [2] 문제 데이터 (Quiz DB) - [직역]
+        // [2] 문제 데이터 (Quiz DB) - [직역 + er4/e4r 수정 완료]
         // ==========================================
         const quizDb = [
             // --- [본문 1] ---
@@ -287,7 +287,7 @@
             { ch: 3, w: 1, isVar: false, hanzi: "她几岁?", answer: "Ta1 ji3 sui4?", meaning: "그녀는 몇 살이니?" },
             { ch: 3, w: 1, isVar: false, hanzi: "今年八岁。", answer: "Ji1nnia2n ba1 sui4.", meaning: "올해 8살이다." },
             
-            // 응용: 나이
+            // 응용: 나이 (수정: er4 -> e4r)
             { ch: 3, w: 1, isVar: true, hanzi: "九岁。", answer: "Jiu3 sui4.", meaning: "9살 (응용)" },
             { ch: 3, w: 1, isVar: true, hanzi: "十岁。", answer: "Shi2 sui4.", meaning: "10살 (응용)" },
             { ch: 3, w: 1, isVar: true, hanzi: "十一岁。", answer: "Shi2yi1 sui4.", meaning: "11살 (응용)" },
@@ -309,13 +309,14 @@
             { ch: 4, w: 1, isVar: true, hanzi: "我是独生女。", answer: "Wo3 shi4 du2she1ngnv3.", meaning: "나는 독녀(외동딸)이다. (응용)" },
             
             { ch: 4, w: 1, isVar: false, hanzi: "他上几年级?", answer: "Ta1 sha4ng ji3 nia2nji2?", meaning: "그는 몇 학년(에) 다니니?" },
+            // 수정: er4 -> e4r
             { ch: 4, w: 1.2, isVar: false, hanzi: "高中二年级。", answer: "Ga1ozho1ng e4r nia2nji2.", meaning: "고등학교 2학년이다." },
             
             // 응용: 가족 (직역)
             { ch: 4, w: 1, isVar: true, hanzi: "他是我弟弟。", answer: "Ta1 shi4 wo3 di4di.", meaning: "그는 나의 남동생이다. (응용)" },
             { ch: 4, w: 1, isVar: true, hanzi: "他是我哥哥。", answer: "Ta1 shi4 wo3 ge1ge.", meaning: "그는 나의 형(오빠)이다. (응용)" },
             
-            // 응용: 학년 (직역)
+            // 응용: 학년 (수정: er4 -> e4r)
             { ch: 4, w: 1, isVar: true, hanzi: "小学六年级。", answer: "Xia3oxue2 liu4 nia2nji2.", meaning: "초등학교 6학년이다. (응용)" },
             { ch: 4, w: 1, isVar: true, hanzi: "初中一年级。", answer: "Chu1zho1ng yi1 nia2nji2.", meaning: "중학교 1학년이다. (응용)" },
             { ch: 4, w: 1, isVar: true, hanzi: "初中二年级。", answer: "Chu1zho1ng e4r nia2nji2.", meaning: "중학교 2학년이다. (응용)" },
