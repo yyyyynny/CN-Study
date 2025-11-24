@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>짱 라오쉬 수행 연습</title>
+    <title>짱 라오쉬 수행 연습 (Master)</title>
     <style>
         /* [디자인] 기본 설정 */
-        html { overflow-y: scroll; } /* 스크롤 밀림 방지 */
+        html { overflow-y: scroll; }
         
         body { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; background-color: #f7f9fc; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; transition: 0.3s; overflow-x: hidden; }
         .card { background: white; padding: 40px 30px; border-radius: 20px; box-shadow: 0 12px 24px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 550px; margin-bottom: 20px; position: relative; transition: 0.3s; z-index: 10; }
@@ -151,7 +151,7 @@
             <button class="tts-btn" onclick="speakCurrentQuestion()" title="듣기">🔊</button>
         </div>
         
-        <input type="text" id="answerInput" placeholder="예: Ji1n, Do1ng" autocomplete="off">
+        <input type="text" id="answerInput" placeholder="예: Ji1n, pe2ngyou" autocomplete="off">
         
         <div id="result"></div>
 
@@ -215,7 +215,7 @@
 
             const voices = window.speechSynthesis.getVoices();
             
-            // 1순위: 고음질
+            // 1. 고음질(Google/Microsoft) 우선 검색
             let targetVoice = voices.find(v => v.lang.includes('zh') && (v.name.includes('Google') || v.name.includes('Microsoft')));
             let isHQ = false;
 
@@ -223,12 +223,12 @@
                 utterance.voice = targetVoice;
                 isHQ = true;
             } else {
-                // 2순위: 일반
+                // 2. 없으면 일반 중국어(zh) 검색
                 targetVoice = voices.find(v => v.lang.includes('zh'));
                 if (targetVoice) utterance.voice = targetVoice;
             }
 
-            // 3순위: 아예 없음 (경고)
+            // 3. 아예 없으면 경고
             if (voices.length > 0 && !targetVoice) {
                 alert("🚨 오류: 기기에 '중국어 음성 데이터'가 없습니다!\n설정에서 다운로드해주세요.");
                 return;
@@ -248,7 +248,6 @@
                 currentHighlightEl = null;
             };
 
-            // 안드로이드 버그 방지
             setTimeout(() => {
                 window.speechSynthesis.speak(utterance);
             }, 10);
@@ -261,7 +260,7 @@
         }
 
         // ==========================================
-        // [2] 문제 데이터 (Quiz DB) - [직역 + er4/e4r 수정 완료]
+        // [2] 문제 데이터 (Quiz DB) - [직역 + er4 수정 + 경성 적용]
         // ==========================================
         const quizDb = [
             // --- [본문 1] ---
@@ -274,7 +273,7 @@
             { ch: 1, w: 1, isVar: true, hanzi: "我是意大利人。", answer: "Wo3 shi4 Yi4da4li4re2n.", meaning: "나는 이탈리아인이다. (응용)" },
 
             // --- [본문 2] ---
-            { ch: 2, w: 1, isVar: false, hanzi: "他很帅!", answer: "Ta1 he3n shua4i!", meaning: "그는 매우 잘생겼다!" },
+            { ch: 2, w: 1, isVar: false, hanzi: "他很帅!", answer: "Ta1 hen3 shua4i!", meaning: "그는 매우 잘생겼다!" },
             { ch: 2, w: 1, isVar: false, hanzi: "他是我的朋友。", answer: "Ta1 shi4 wo3 de pe2ngyou.", meaning: "그는 나의 친구이다." },
             { ch: 2, w: 1, isVar: false, hanzi: "他是美国人吗?", answer: "Ta1 shi4 Me3iguo2re2n ma?", meaning: "그는 미국인이니?" },
             { ch: 2, w: 1, isVar: false, hanzi: "不是,他是加拿大人。", answer: "Bu2 shi4, ta1 shi4 Jia1na2da4re2n.", meaning: "아니, 그는 캐나다인이다." },
@@ -283,11 +282,11 @@
             { ch: 3, w: 1, isVar: false, hanzi: "她是谁?", answer: "Ta1 shi4 she2i?", meaning: "그녀는 누구니?" },
             { ch: 3, w: 1, isVar: false, hanzi: "她是我妹妹。", answer: "Ta1 shi4 wo3 me4imei.", meaning: "그녀는 나의 여동생이다." },
             { ch: 3, w: 1, isVar: true, hanzi: "他是谁?", answer: "Ta1 shi4 she2i?", meaning: "그는 누구니? (응용)" },
-            { ch: 3, w: 1, isVar: false, hanzi: "她很像你!", answer: "Ta1 he3n xia4ng ni3!", meaning: "그녀는 너를 매우 닮았다!" },
+            { ch: 3, w: 1, isVar: false, hanzi: "她很像你!", answer: "Ta1 hen3 xia4ng ni3!", meaning: "그녀는 너를 매우 닮았다!" },
             { ch: 3, w: 1, isVar: false, hanzi: "她几岁?", answer: "Ta1 ji3 sui4?", meaning: "그녀는 몇 살이니?" },
             { ch: 3, w: 1, isVar: false, hanzi: "今年八岁。", answer: "Ji1nnia2n ba1 sui4.", meaning: "올해 8살이다." },
             
-            // 응용: 나이 (수정: er4 -> e4r)
+            // 응용: 나이 (Shi2e4r)
             { ch: 3, w: 1, isVar: true, hanzi: "九岁。", answer: "Jiu3 sui4.", meaning: "9살 (응용)" },
             { ch: 3, w: 1, isVar: true, hanzi: "十岁。", answer: "Shi2 sui4.", meaning: "10살 (응용)" },
             { ch: 3, w: 1, isVar: true, hanzi: "十一岁。", answer: "Shi2yi1 sui4.", meaning: "11살 (응용)" },
@@ -309,14 +308,14 @@
             { ch: 4, w: 1, isVar: true, hanzi: "我是独生女。", answer: "Wo3 shi4 du2she1ngnv3.", meaning: "나는 독녀(외동딸)이다. (응용)" },
             
             { ch: 4, w: 1, isVar: false, hanzi: "他上几年级?", answer: "Ta1 sha4ng ji3 nia2nji2?", meaning: "그는 몇 학년(에) 다니니?" },
-            // 수정: er4 -> e4r
+            // e4r
             { ch: 4, w: 1.2, isVar: false, hanzi: "高中二年级。", answer: "Ga1ozho1ng e4r nia2nji2.", meaning: "고등학교 2학년이다." },
             
             // 응용: 가족 (직역)
             { ch: 4, w: 1, isVar: true, hanzi: "他是我弟弟。", answer: "Ta1 shi4 wo3 di4di.", meaning: "그는 나의 남동생이다. (응용)" },
             { ch: 4, w: 1, isVar: true, hanzi: "他是我哥哥。", answer: "Ta1 shi4 wo3 ge1ge.", meaning: "그는 나의 형(오빠)이다. (응용)" },
             
-            // 응용: 학년 (수정: er4 -> e4r)
+            // 응용: 학년 (e4r)
             { ch: 4, w: 1, isVar: true, hanzi: "小学六年级。", answer: "Xia3oxue2 liu4 nia2nji2.", meaning: "초등학교 6학년이다. (응용)" },
             { ch: 4, w: 1, isVar: true, hanzi: "初中一年级。", answer: "Chu1zho1ng yi1 nia2nji2.", meaning: "중학교 1학년이다. (응용)" },
             { ch: 4, w: 1, isVar: true, hanzi: "初中二年级。", answer: "Chu1zho1ng e4r nia2nji2.", meaning: "중학교 2학년이다. (응용)" },
